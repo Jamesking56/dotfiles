@@ -1,0 +1,9 @@
+alias gwip='git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit --no-verify -m "[WIP] $(curl --silent --fail https://whatthecommit.com/index.txt)"'
+alias gwipa='git commit --amend --no-verify -m "[WIP] $(curl --silent --fail https://whatthecommit.com/index.txt)"'
+alias l="ls -lha"
+alias ls='eza -lh --group-directories-first --icons=auto'
+alias mysql="mycli"
+alias n="nvim"
+alias sail="bash vendor/bin/sail"
+alias vim="nvim"
+alias zsh-refresh="antigen update && antigen cleanup && source ~/.zshrc"
