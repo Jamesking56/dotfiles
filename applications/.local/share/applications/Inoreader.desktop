@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Inoreader
+Comment=Inoreader
+Exec=omarchy-launch-webapp https://www.inoreader.com/all_articles
+Terminal=false
+Type=Application
+Icon=/home/jamesking56/.local/share/applications/icons/Inoreader.png
+StartupNotify=true
