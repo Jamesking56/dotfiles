@@ -51,6 +51,21 @@ antigen apply
 zstyle :omz:plugins:ssh-agent agent-forwarding on
 zstyle :omz:plugins:ssh-agent lifetime 4h
 
+# History control
+HISTCONTROL=ignoreboth
+HISTSIZE=32768
+HISTFILESIZE="${HISTSIZE}"
+
+# Ensure command hashing if off for mise
+set +h
+
 source $HOME/.aliases
+source ~/.local/share/omarchy/default/bash/functions
+source ~/.local/share/omarchy/default/bash/prompt
+source ~/.local/share/omarchy/default/bash/envs
+
+source /usr/share/fzf/key-bindings.zsh
 
 eval "$(starship init zsh)"
+
+export PATH="$HOME/.config/composer/vendor/bin:$PATH"
