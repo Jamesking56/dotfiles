@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=GitHub Gist
+Comment=GitHub Gist
+Exec=omarchy-launch-webapp https://gist.github.com/
+Terminal=false
+Type=Application
+Icon=/home/jamesking56/.local/share/applications/icons/GitHub Gist.png
+StartupNotify=true

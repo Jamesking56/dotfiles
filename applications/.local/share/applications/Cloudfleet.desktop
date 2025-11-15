@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Cloudfleet
+Comment=Cloudfleet
+Exec=omarchy-launch-webapp https://console.cloudfleet.ai/
+Terminal=false
+Type=Application
+Icon=/home/jamesking56/.local/share/applications/icons/Cloudfleet.png
+StartupNotify=true

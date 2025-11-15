@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=WHMCS
+Comment=WHMCS
+Exec=omarchy-launch-webapp https://clients.varsuite.co.uk/admin
+Terminal=false
+Type=Application
+Icon=/home/jamesking56/.local/share/applications/icons/WHMCS.png
+StartupNotify=true
