@@ -61,7 +61,6 @@ set +h
 
 source $HOME/.aliases
 source ~/.local/share/omarchy/default/bash/functions
-source ~/.local/share/omarchy/default/bash/prompt
 source ~/.local/share/omarchy/default/bash/envs
 
 source /usr/share/fzf/key-bindings.zsh
