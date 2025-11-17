@@ -27,6 +27,7 @@ antigen bundles <<EOBUNDLES
     redis-cli
     snap
     ssh-agent
+    starship
     sudo
     systemd
     tmux
@@ -64,7 +65,5 @@ source ~/.local/share/omarchy/default/bash/functions
 source ~/.local/share/omarchy/default/bash/envs
 
 source /usr/share/fzf/key-bindings.zsh
-
-eval "$(starship init zsh)"
 
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
