@@ -10,41 +10,40 @@ antigen bundles <<EOBUNDLES
     copybuffer
     copyfile
     copypath
-    debian
     docker
     encode64
+    fzf
     gh
     git
     helm
     isodate
     laravel
     minikube
+    mise
     nmap
     npm
     perms
     pip
     rclone
     redis-cli
-    snap
     ssh-agent
     starship
     sudo
     systemd
     tmux
     transfer
-    ubuntu
     ufw
     web-search
     wp-cli
-    yarn
+    zoxide
 
     # Third party bundles
     djui/alias-tips
+    jasonmccreary/git-trim --branch=main
+    jessarcher/zsh-artisan
     zsh-users/zsh-syntax-highlighting
     zsh-users/zsh-autosuggestions
     zsh-users/zsh-completions
-    jessarcher/zsh-artisan
-    jasonmccreary/git-trim --branch=main
 EOBUNDLES
 
 antigen apply
@@ -63,7 +62,5 @@ set +h
 source $HOME/.aliases
 source ~/.local/share/omarchy/default/bash/functions
 source ~/.local/share/omarchy/default/bash/envs
-
-source /usr/share/fzf/key-bindings.zsh
 
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
