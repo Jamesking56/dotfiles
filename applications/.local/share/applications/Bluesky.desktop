@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Bluesky
+Comment=Bluesky
+Exec=omarchy-launch-webapp https://bsky.app
+Terminal=false
+Type=Application
+Icon=/home/jamesking56/.local/share/applications/icons/Bluesky.png
+StartupNotify=true
