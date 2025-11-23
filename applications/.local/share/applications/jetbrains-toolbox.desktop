@@ -1,5 +1,5 @@
 [Desktop Entry]
-Icon=/home/jamesking56/.local/share/applications/icons/jetbrains-toolbox.png
+Icon=/opt/jetbrains-toolbox/toolbox.svg
 Exec=/opt/jetbrains-toolbox/jetbrains-toolbox %u
 Version=1.0
 Type=Application
