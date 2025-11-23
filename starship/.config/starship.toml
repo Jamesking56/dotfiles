@@ -3,7 +3,7 @@
 format = """
 [](surface0)\
 $os\
-$username\
+$username$hostname\
 [](bg:peach fg:surface0)\
 $directory\
 [](fg:peach bg:green)\
@@ -98,6 +98,10 @@ show_always = true
 style_user = "bg:surface0 fg:text"
 style_root = "bg:surface0 fg:text"
 format = '[ $user ]($style)'
+
+[hostname]
+ssh_only = true
+format = '[$ssh_symbol$hostname ](bg:surface0 fg:text)'
 
 [directory]
 style = "fg:mantle bg:peach"
