@@ -63,4 +63,8 @@ source $HOME/.aliases
 source ~/.local/share/omarchy/default/bash/functions
 source ~/.local/share/omarchy/default/bash/envs
 
+if command -v try &> /dev/null; then
+  eval "$(try init ~/Work/tries)"
+fi
+
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
