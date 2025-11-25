@@ -4,6 +4,9 @@ antigen use oh-my-zsh
 
 antigen bundles <<EOBUNDLES
     # Bundles from the default repo (robbyrussell's oh-my-zsh)
+    aliases
+    ansible
+    archlinux
     command-not-found
     common-aliases
     composer
@@ -11,12 +14,16 @@ antigen bundles <<EOBUNDLES
     copyfile
     copypath
     docker
+    docker-compose
     encode64
+    extract
+    fancy-ctrl-z
     fzf
     gh
     git
     helm
     isodate
+    kubectl
     laravel
     minikube
     mise
@@ -26,10 +33,14 @@ antigen bundles <<EOBUNDLES
     pip
     rclone
     redis-cli
+    rsync
+    ssh
     ssh-agent
     starship
     sudo
     systemd
+    tailscale
+    terraform
     tmux
     transfer
     ufw
