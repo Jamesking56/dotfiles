@@ -37,6 +37,7 @@ alias gwip='git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commi
 alias gwipa='git commit --amend --no-verify -m "[WIP] $(curl --silent --fail https://whatthecommit.com/index.txt)"'
 
 # Tools
+alias 20i='~/Work/20i-cli/20i'
 alias d='docker'
 alias lg='lazygit'
 alias mysql="mycli"
