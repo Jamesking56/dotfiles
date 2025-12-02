@@ -78,4 +78,4 @@ if command -v try &> /dev/null; then
   eval "$(try init ~/Work/tries)"
 fi
 
-export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+export PATH="$HOME/.config/composer/vendor/bin:$HOME/bin:$PATH"
