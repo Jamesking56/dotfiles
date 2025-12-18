@@ -1,0 +1,152 @@
+#!/bin/sh
+
+set -eu
+
+get_composer() {
+  dir="$1"
+
+  while [ "$dir" != "/" ]; do
+    if [ -f "$dir/composer.json" ] || [ -f "$dir/composer.lock" ]; then
+      echo "$dir"
+      return 0
+    fi
+
+    dir=$(dirname "$dir")
+  done
+
+  return 1
+}
+
+php_bin_path() {
+  version="$1"
+
+  bin="php$(echo "$1" | tr -d '.')"
+
+  if [ "$bin" = "php" ]; then
+    echo /usr/bin/php
+  else
+    command -v "$bin" || return 1
+  fi
+}
+
+php_version_compare() {
+  version="$1"
+  constraint="$2"
+
+  bin="$(php_bin_path "$version")" || return 1
+
+  # Ensure we don't recurse into the wrapper
+  PATH=/usr/bin:/bin \
+    "$bin" -r "exit(version_compare(PHP_VERSION, '$constraint', '>=') ? 0 : 1);"
+}
+
+php_find_version() {
+  if php_version_compare 5.6 $1; then
+    echo 5.6
+    return 0
+  fi
+
+  if php_version_compare 7.0 $1; then
+    echo 7.0
+    return 0
+  fi
+
+  if php_version_compare 7.1 $1; then
+    echo 7.1
+    return 0
+  fi
+
+  if php_version_compare 7.2 $1; then
+    echo 7.2
+    return 0
+  fi
+
+  if php_version_compare 7.3 $1; then
+    echo 7.3
+    return 0
+  fi
+
+  if php_version_compare 7.4 $1; then
+    echo 7.4
+    return 0
+  fi
+
+  if php_version_compare 8.0 $1; then
+    echo 8.0
+    return 0
+  fi
+
+  if php_version_compare 8.1 $1; then
+    echo 8.1
+    return 0
+  fi
+
+  if php_version_compare 8.2 $1; then
+    echo 8.2
+    return 0
+  fi
+
+  if php_version_compare 8.3 $1; then
+    echo 8.3
+    return 0
+  fi
+
+  if php_version_compare 8.4 $1; then
+    echo 8.4
+    return 0
+  fi
+
+  if php_version_compare 8.5 $1; then
+    echo 8.5
+    return 0
+  fi
+
+  return 1
+}
+
+get_default_php() {
+  # Default to latest PHP
+  echo /usr/bin/php
+}
+
+composer_platform_override() {
+  dir="$1"; shift
+  package="$1"; shift
+
+  if ! [ -f "$dir/composer.lock" ]; then
+    return 1
+  fi
+
+  output=$(jq --exit-status --raw-output ".[\"platform\"].$package" "$dir/composer.lock" | sed 's/[\^>=~]//')
+
+  if [ $output = 'null' ]; then
+    return 1
+  fi
+
+  echo $output
+  return 0
+}
+
+if ! [ -z "${PHP_VERSION:-}" ]; then
+  PHP_BIN="$(php_bin_path "$(php_find_version "$PHP_VERSION")")"
+elif command -v jq >/dev/null && COMPOSER_DIR=$(get_composer "$(pwd)"); then
+  if composer_platform_override "$COMPOSER_DIR" "php" >/dev/null; then
+    PHP_BIN="$(php_bin_path "$(php_find_version $(composer_platform_override "$COMPOSER_DIR" "php"))")"
+  fi
+fi
+
+if [ -z "${PHP_BIN:-}" ]; then
+  PHP_BIN="$(get_default_php)"
+fi
+
+args=""
+
+if [ "${PHP_XDEBUG:-0}" -gt 0 ]; then
+  args="${args} -dzend_extension=xdebug.so"
+fi
+
+if [ ! -z "${PHP_ASSERT:-}" ]; then
+  args="${args} -dzend.assertions=${PHP_ASSERT}"
+fi
+
+exec $PHP_BIN $args "$@"
