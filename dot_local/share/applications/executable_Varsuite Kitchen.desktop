@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Varsuite Kitchen
+Comment=Varsuite Kitchen
+Exec=omarchy-launch-webapp https://portal.varsuite.co.uk/
+Terminal=false
+Type=Application
+Icon=/home/jamesking56/.local/share/applications/icons/Varsuite Kitchen.png
+StartupNotify=true
