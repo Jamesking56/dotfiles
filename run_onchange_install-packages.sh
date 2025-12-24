@@ -82,6 +82,12 @@ composer global require --no-interaction \
 # -----------------------------
 # PHP Versions and Extensions
 # -----------------------------
+
+# Enable Redis for main php package
+echo "extension=redis.so" | sudo tee /etc/php/conf.d/redis.ini > /dev/null
+sudo sed -i 's/;extension=igbinary/extension=igbinary/' /etc/php/conf.d/igbinary.ini
+sudo sed -i 's/;extension=redis/extension=redis/' /etc/php/conf.d/redis.ini
+
 PHP_VERSIONS=(84 83 82)
 
 # Extensions that are safe to bulk-install
@@ -111,6 +117,12 @@ for ver in "${PHP_VERSIONS[@]}"; do
     yay -S --noconfirm --needed "php${ver}-${ext}" --mflags --nocheck || echo "Failed to install php${ver}-${ext}, please install manually."
   done
 done
+
+echo "Install redis via PECL for PHP 8.4 (due to missing php84-redis package)"
+if [ ! -f /etc/php84/conf.d/redis.ini ]; then
+  yes '' | sudo pecl84 install --soft redis || true
+  echo "extension=redis.so" | sudo tee /etc/php84/conf.d/redis.ini > /dev/null
+fi
 
 # -----------------------------
 # Remove unwanted packages
