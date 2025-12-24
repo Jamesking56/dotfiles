@@ -41,6 +41,12 @@ YAY_PKGS=(
 echo "Installing core packages..."
 sudo pacman -S --noconfirm --needed "${PACMAN_PKGS[@]}"
 yay -S --noconfirm --needed "${YAY_PKGS[@]}"
+if ! command -v sshm >/dev/null 2>&1
+then
+  # Install sshm
+  curl -sSL https://raw.githubusercontent.com/Gu1llaum-3/sshm/main/install/unix.sh | bash
+fi
+# Install dependency for ssh-import-id
 ~/.local/share/mise/installs/python/3.14.2/bin/python -m pip install distro
 
 # -----------------------------
@@ -79,7 +85,7 @@ composer global require --no-interaction \
 PHP_VERSIONS=(84 83 82)
 
 # Extensions that are safe to bulk-install
-SAFE_EXTENSIONS=(bcmath cli curl dom exif fileinfo fpm gd iconv intl mbstring mysql openssl pcntl pdo pgsql phar posix simplexml sqlite sockets sodium tokenizer xml xmlreader xmlwriter)
+SAFE_EXTENSIONS=(bcmath cli curl dom exif fileinfo fpm gd iconv intl mbstring mysql openssl pcntl pdo pecl pgsql phar posix simplexml sqlite sockets sodium tokenizer xml xmlreader xmlwriter)
 
 # Extensions that often fail and need manual installation
 TRICKY_EXTENSIONS=(redis xdebug)
