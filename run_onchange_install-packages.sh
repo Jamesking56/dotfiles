@@ -33,6 +33,7 @@ YAY_PKGS=(
   lens-bin
   mattermost-desktop-bin
   mycli
+  ssh-import-id
   vesktop-bin
   zsh
 )
@@ -40,6 +41,13 @@ YAY_PKGS=(
 echo "Installing core packages..."
 sudo pacman -S --noconfirm --needed "${PACMAN_PKGS[@]}"
 yay -S --noconfirm --needed "${YAY_PKGS[@]}"
+~/.local/share/mise/installs/python/3.14.2/bin/python -m pip install distro
+
+# -----------------------------
+# Authorised SSH keys
+# -----------------------------
+rm -f ~/.ssh/authorized_keys
+ssh-import-id gh:Jamesking56
 
 # -----------------------------
 # Docker Containers
