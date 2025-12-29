@@ -91,7 +91,7 @@ sudo sed -i 's/;extension=redis/extension=redis/' /etc/php/conf.d/redis.ini
 PHP_VERSIONS=(84 83 82)
 
 # Extensions that are safe to bulk-install
-SAFE_EXTENSIONS=(bcmath cli curl dom exif fileinfo fpm gd iconv intl mbstring mysql openssl pcntl pdo pecl pgsql phar posix simplexml sqlite sockets sodium tokenizer xml xmlreader xmlwriter)
+SAFE_EXTENSIONS=(bcmath cli curl dom exif fileinfo fpm gd iconv intl mbstring mysql openssl pcntl pdo pecl pgsql phar posix simplexml sqlite sockets sodium tokenizer xml xmlreader xmlwriter zip)
 
 # Extensions that often fail and need manual installation
 TRICKY_EXTENSIONS=(redis xdebug)
