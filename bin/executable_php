@@ -113,18 +113,26 @@ composer_platform_override() {
   dir="$1"; shift
   package="$1"; shift
 
-  if ! [ -f "$dir/composer.lock" ]; then
-    return 1
+  # Check composer.lock first
+  if [ -f "$dir/composer.lock" ]; then
+    output=$(jq --exit-status --raw-output ".[\"platform\"].$package" "$dir/composer.lock" 2>/dev/null | sed 's/[\^>=~]//')
+    if [ "$output" != "null" ]; then
+      echo "$output"
+      return 0
+    fi
   fi
 
-  output=$(jq --exit-status --raw-output ".[\"platform\"].$package" "$dir/composer.lock" | sed 's/[\^>=~]//')
-
-  if [ $output = 'null' ]; then
-    return 1
+  # Fallback to composer.json if composer.lock is missing or package not found
+  if [ -f "$dir/composer.json" ]; then
+    output=$(jq --exit-status --raw-output ".require.\"$package\"" "$dir/composer.json" 2>/dev/null | sed 's/[\^>=~]//')
+    if [ "$output" != "null" ]; then
+      echo "$output"
+      return 0
+    fi
   fi
 
-  echo $output
-  return 0
+  # Not found in either file
+  return 1
 }
 
 if ! [ -z "${PHP_VERSION:-}" ]; then
