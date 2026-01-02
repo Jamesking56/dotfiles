@@ -5,10 +5,13 @@ set -euo pipefail
 # Core system packages
 # -----------------------------
 PACMAN_PKGS=(
+  bind
   bitwarden
   bitwarden-cli
   cheese
   graphviz
+  helm
+  kubectl
   rclone
   tmux
   wp-cli
