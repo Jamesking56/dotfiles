@@ -134,6 +134,7 @@ REMOVE_PACKAGES=(
   1password
   alacritty
   signal-desktop
+  xournalpp
 )
 
 for pkg in "${REMOVE_PACKAGES[@]}"; do
