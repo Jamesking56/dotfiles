@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=PokeMMO
+Comment=MMO based on the Pokémon Universe
+Exec=env WAYLAND_DISPLAY= XDG_SESSON_TYPE=x11 GDK_BACKEND=x11 pokemmo-launcher
+Keywords=game;adventure;multiplayer;online;emulator;monster;battle;mmo;mmorpg
+Terminal=false
+Type=Application
+Icon=pokemmo-launcher
+Categories=Game;AdventureGame;Emulator;RolePlaying;
