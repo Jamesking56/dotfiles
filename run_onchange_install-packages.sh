@@ -12,6 +12,8 @@ PACMAN_PKGS=(
   graphviz
   helm
   kubectl
+  python-distro
+  python-setuptools
   rclone
   tmux
   wp-cli
@@ -49,8 +51,6 @@ then
   # Install sshm
   curl -sSL https://raw.githubusercontent.com/Gu1llaum-3/sshm/main/install/unix.sh | bash
 fi
-# Install dependency for ssh-import-id
-~/.local/share/mise/installs/python/3.14.2/bin/python -m pip install distro
 
 # -----------------------------
 # Authorised SSH keys
@@ -132,8 +132,13 @@ fi
 # -----------------------------
 REMOVE_PACKAGES=(
   1password
+  1password-beta
+  1password-cli
   alacritty
+  omarchy-chromium
   signal-desktop
+  spotify
+  typora
   xournalpp
 )
 
@@ -141,6 +146,20 @@ for pkg in "${REMOVE_PACKAGES[@]}"; do
   if pacman -Q "$pkg" &>/dev/null; then
     sudo pacman -Rns --noconfirm "$pkg"
   fi
+done
+
+# -----------------------------
+# Remove unwanted web apps
+# -----------------------------
+REMOVE_WEB_APPS=(
+  Basecamp
+  Figma
+  Fizzy
+  HEY
+)
+
+for app in "${REMOVE_WEB_APPS[@]}"; do
+  omarchy-webapp-remove "$app"
 done
 
 # -----------------------------
