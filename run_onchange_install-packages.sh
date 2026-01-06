@@ -59,6 +59,13 @@ rm -f ~/.ssh/authorized_keys
 ssh-import-id gh:Jamesking56
 
 # -----------------------------
+# Enable SSH server over LAN
+# -----------------------------
+sudo ufw allow from 192.168.0.0/24 to any port 22
+sudo systemctl enable sshd
+sudo systemctl start sshd
+
+# -----------------------------
 # Docker Containers
 # -----------------------------
 declare -A DOCKER_CONTAINERS=(
