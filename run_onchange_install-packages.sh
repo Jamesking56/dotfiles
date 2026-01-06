@@ -153,6 +153,7 @@ done
 # -----------------------------
 REMOVE_WEB_APPS=(
   Basecamp
+  Discord
   Figma
   Fizzy
   HEY
