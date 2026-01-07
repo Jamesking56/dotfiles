@@ -8,7 +8,6 @@ PACMAN_PKGS=(
   bind
   bitwarden
   bitwarden-cli
-  cheese
   graphviz
   helm
   kubectl
@@ -32,6 +31,7 @@ YAY_PKGS=(
   antigen
   brave-bin
   bruno-bin
+  cheese
   cloudfleet-cli
   downgrade
   jetbrains-toolbox
