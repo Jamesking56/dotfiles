@@ -70,7 +70,7 @@ sudo systemctl start sshd
 # -----------------------------
 declare -A DOCKER_CONTAINERS=(
   [mariadb11]="omarchy-install-docker-dbs MariaDB"
-  [postgres17]="omarchy-install-docker-dbs PostgreSQL"
+  [postgres18]="omarchy-install-docker-dbs PostgreSQL"
   [mailhog]="docker run --name mailhog -d -it --restart=always -p 8025:8025 -p 1025:1025 mailhog/mailhog"
 )
 
