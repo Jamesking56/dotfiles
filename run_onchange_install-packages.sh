@@ -15,6 +15,7 @@ PACMAN_PKGS=(
   python-setuptools
   rclone
   tmux
+  trash-cli
   wp-cli
   composer
   php
