@@ -128,9 +128,9 @@ yay -S --needed --noconfirm "${ALL_PHP_PKGS[@]}" || echo "Warning: Some PHP pack
 
 # Tricky extensions (install separately, allow failures)
 for ver in "${PHP_VERSIONS[@]}"; do
-    for ext in "${TRICKY_EXTENSIONS[@]}"; do
-        yay -S --needed --noconfirm "php${ver}-${ext}" --mflags --nocheck || echo "Failed to install php${ver}-${ext}, please install manually"
-    done
+  for ext in "${TRICKY_EXTENSIONS[@]}"; do
+    yay -S --needed --noconfirm "php${ver}-${ext}" --mflags --nocheck || echo "Failed to install php${ver}-${ext}, please install manually"
+  done
 done
 
 echo "Install redis via PECL for PHP 8.4 (due to missing php84-redis package)"
