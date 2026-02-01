@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+trap 'kill $! 2>/dev/null' EXIT
+
 # Ask for sudo once
 sudo -v
 
