@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+# Ask for sudo once
+sudo -v
+
+# Keep-alive: update sudo timestamp until script finishes
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
 # -----------------------------
 # Core system packages
 # -----------------------------
