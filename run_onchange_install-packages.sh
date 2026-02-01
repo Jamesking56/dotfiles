@@ -180,7 +180,7 @@ done
 # Setup valet-linux
 # -----------------------------
 if ! command -v valet; then
-  composer global require cpriego/valet-linux
+  composer global require --no-interaction cpriego/valet-linux
   valet install
 fi
 sudo rm -f /etc/resolv.conf
