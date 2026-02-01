@@ -93,8 +93,7 @@ done
 # -----------------------------
 echo "Installing global Composer packages..."
 composer global require --no-interaction \
-  laravel/installer \
-  cpriego/valet-linux
+  laravel/installer
 
 # -----------------------------
 # PHP Versions and Extensions
