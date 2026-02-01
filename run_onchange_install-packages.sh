@@ -115,12 +115,12 @@ TRICKY_EXTENSIONS=(redis xdebug)
 
 echo "Installing/Upgrading PHP base packages and extensions in one transaction..."
 
-ALL_PHP_PKGS=()
 for ver in "${PHP_VERSIONS[@]}"; do
-    ALL_PHP_PKGS+=("php${ver}")
-    for ext in "${SAFE_EXTENSIONS[@]}"; do
-        ALL_PHP_PKGS+=("php${ver}-${ext}")
-    done
+  PKGS=("php${ver}")
+  for ext in "${SAFE_EXTENSIONS[@]}"; do
+    PKGS+=("php${ver}-${ext}")
+  done
+  yay -S --needed --noconfirm "${PKGS[@]}" || echo "Failed to install PHP $ver packages"
 done
 
 # Upgrade all PHP packages at once to prevent dependency conflicts
