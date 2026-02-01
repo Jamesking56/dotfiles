@@ -172,6 +172,30 @@ for app in "${REMOVE_WEB_APPS[@]}"; do
 done
 
 # -----------------------------
+# Setup valet-linux
+# -----------------------------
+if ! command -v valet; then
+  composer global require cpriego/valet-linux
+  valet install
+fi
+sudo rm -f /etc/resolv.conf
+echo "nameserver 127.0.0.1" | sudo tee /etc/resolv.conf
+valet park ~/Work
+# Setup Cloudflare DNS for anything outside of valet 
+sudo tee /etc/dnsmasq.d/valet-upstream.conf > /dev/null <<'EOF'
+server=1.1.1.1
+server=1.0.0.1
+EOF
+sudo tee /etc/dnsmasq.d/valet.conf > /dev/null <<'EOF'
+address=/test/127.0.0.1
+listen-address=127.0.0.1
+bind-interfaces
+EOF
+sudo systemctl restart dnsmasq
+sudo resolvectl flush-caches
+valet restart
+
+# -----------------------------
 # Finish
 # -----------------------------
 echo
