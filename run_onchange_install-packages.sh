@@ -102,7 +102,6 @@ composer global require --no-interaction \
 # Enable Redis for main php package
 echo "extension=redis.so" | sudo tee /etc/php/conf.d/redis.ini > /dev/null
 sudo sed -i 's/;extension=igbinary/extension=igbinary/' /etc/php/conf.d/igbinary.ini
-sudo sed -i 's/;extension=redis/extension=redis/' /etc/php/conf.d/redis.ini
 
 PHP_VERSIONS=(84 83 82)
 
