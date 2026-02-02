@@ -201,7 +201,6 @@ listen-address=127.0.0.1
 bind-interfaces
 EOF
 sudo systemctl restart dnsmasq
-sudo resolvectl flush-caches
 valet restart
 
 # -----------------------------
