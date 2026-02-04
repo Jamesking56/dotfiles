@@ -187,11 +187,15 @@ if ! command -v valet; then
   composer global require --no-interaction cpriego/valet-linux
   valet install
 fi
-sudo mv /etc/resolv.conf /etc/resolv.conf.bak
-echo "nameserver 127.0.0.1" | sudo tee /etc/resolv.conf
 valet park ~/Work
 # Setup Cloudflare DNS for anything outside of valet 
+sudo mv /etc/resolv.conf /etc/resolv.conf.bak
+sudo tee /etc/resolv.conf > /dev/null <<'EOF'
+nameserver 1.1.1.1
+nameserver 1.0.0.1
+EOF
 sudo tee /etc/dnsmasq.d/valet-upstream.conf > /dev/null <<'EOF'
+no-resolv
 server=1.1.1.1
 server=1.0.0.1
 EOF
