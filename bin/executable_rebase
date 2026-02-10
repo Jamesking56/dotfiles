@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+if [ $# -eq 0 ]; then
+    echo "Git Rebaser" >&2
+    echo "Usage:" >&2
+    echo "rebase {base_branch}" >&2
+    exit 1
+fi
+
+BASE=$1
+SOURCE=$(git rev-parse --abbrev-ref HEAD)
+
+echo "Rebasing $SOURCE using $BASE..."
+
+git pull --rebase
+git checkout "$BASE" && \
+git fetch -p && \
+git pull && \
+git checkout "$SOURCE" && \
+git rebase --interactive --autosquash "$BASE"
