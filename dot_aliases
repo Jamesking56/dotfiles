@@ -42,6 +42,7 @@ alias gwipa='git commit --amend --no-verify -m "[WIP] $(curl --silent --fail htt
 alias open-repo='gh repo view -w'
 alias trigger-run='gh workflow run'
 alias watch-run='gh run watch'
+alias view-run='gh run view -w'
 
 # Tools
 alias 20i='~/Work/20i-cli/20i'
