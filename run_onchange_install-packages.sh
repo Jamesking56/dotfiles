@@ -210,5 +210,4 @@ valet restart
 # -----------------------------
 # Finish
 # -----------------------------
-echo
-gum spin --spinner "globe" --title "Packages updated!" -- bash -c 'read -n 1 -s'
+omarchy-show-done
