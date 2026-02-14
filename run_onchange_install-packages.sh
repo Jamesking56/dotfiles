@@ -65,6 +65,9 @@ fi
 echo "extension=redis.so" | sudo tee /etc/php/conf.d/redis.ini > /dev/null
 sudo sed -i 's/;extension=igbinary/extension=igbinary/' /etc/php/conf.d/igbinary.ini
 
+# Remove Brave theming installed by Omarchy
+sudo rm -f /etc/brave/policies/managed/color.json
+
 # -----------------------------
 # Authorised SSH keys
 # -----------------------------
