@@ -71,9 +71,24 @@ HISTFILESIZE="${HISTSIZE}"
 # Ensure command hashing if off for mise
 set +h
 
+# Import Omarchy aliases
+source ~/.local/share/omarchy/default/bash/aliases
+
+# Import our own aliases
 source $HOME/.aliases
+
+# Fix alias clashes with Omarchy Git Worktrees functions
+unalias ga
+alias gadd='git add'
+unalias gd
+alias gdiff='git diff'
+
+# Import Omarchy base functions and envs
 source ~/.local/share/omarchy/default/bash/functions
 source ~/.local/share/omarchy/default/bash/envs
+
+# Override omachy 'c' alias
+alias c='composer'
 
 if command -v try &> /dev/null; then
   eval "$(try init ~/Work/tries)"
