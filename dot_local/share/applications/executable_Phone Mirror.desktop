@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Phone Mirror
+Comment=Phone Mirror
+Exec=xdg-terminal-exec --app-id=TUI.float -e adb wait-for-device && scrcpy --max-fps=120 --video-bit-rate=8M --turn-screen-off
+Terminal=false
+Type=Application
+Icon=/home/jamesking56/.local/share/applications/icons/Phone Mirror.png
+StartupNotify=true

@@ -22,6 +22,7 @@ PACMAN_PKGS=(
   python-distro
   python-setuptools
   rclone
+  scrcpy
   tmux
   trash-cli
   wp-cli
