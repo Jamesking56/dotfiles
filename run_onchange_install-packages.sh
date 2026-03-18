@@ -13,6 +13,7 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # Core system packages
 # -----------------------------
 PACMAN_PKGS=(
+  1password-cli
   bind
   bitwarden
   bitwarden-cli
@@ -38,6 +39,7 @@ PACMAN_PKGS=(
 )
 
 YAY_PKGS=(
+  1password
   antigen
   brave-bin
   bruno-bin
@@ -153,9 +155,6 @@ fi
 # Remove unwanted packages
 # -----------------------------
 REMOVE_PACKAGES=(
-  1password
-  1password-beta
-  1password-cli
   alacritty
   omarchy-chromium
   signal-desktop
