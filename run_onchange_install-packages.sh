@@ -27,6 +27,7 @@ PACMAN_PKGS=(
   tmux
   trash-cli
   wp-cli
+  xsel
   composer
   php
   php-fpm
