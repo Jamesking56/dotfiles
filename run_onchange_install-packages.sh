@@ -212,7 +212,7 @@ EOF
 sudo systemctl restart dnsmasq
 valet restart
 # Lock resolv.conf to prevent Tailscale and valet-dns from corrupting it
-if ! sudo lsattr /opt/valet-linux/resolv.conf 2>/dev/null | grep -q '\-i\-'; then
+if ! sudo lsattr /opt/valet-linux/resolv.conf 2>/dev/null | grep -q 'i'; then
   sudo bash -c 'printf "nameserver 127.0.0.1\n" > /opt/valet-linux/resolv.conf'
   sudo chattr +i /opt/valet-linux/resolv.conf
 fi
