@@ -28,6 +28,7 @@ PACMAN_PKGS=(
   trash-cli
   wp-cli
   xsel
+  mc
   composer
   php
   php-fpm
