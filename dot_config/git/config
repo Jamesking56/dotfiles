@@ -1,30 +1,39 @@
 # See https://git-scm.com/docs/git-config
 
+[user]
+	name = James King
+[core]
+	autocrlf = input
+	editor = nvim
 [alias]
 	co = checkout
 	br = branch
 	ci = commit
 	st = status
+	partial-push = "!sh -c 'REMOTE=$0;BRANCH=$1;BATCH_SIZE=100; if git show-ref --quiet --verify refs/remotes/$REMOTE/$BRANCH; then range=$REMOTE/$BRANCH..HEAD; else range=HEAD; fi; n=$(git log --first-parent --format=format:x $range | wc -l); echo "Have to push $n packages in range of $range"; for i in $(seq $n -$BATCH_SIZE 1); do h=$(git log --first-parent --reverse --format=format:%H --skip $i -n1);  echo "Pushing $h..."; git push $REMOTE ${h}:refs/heads/$BRANCH; done; git push $REMOTE HEAD:refs/heads/$BRANCH'"
 [init]
 	defaultBranch = main
 [pull]
-	rebase = true 			 # Rebase (instead of merge) on pull
+	rebase = true              # Rebase (instead of merge) on pull
 [push]
-	autoSetupRemote = true   # Automatically set upstream branch on push
+	autoSetupRemote = true     # Automatically set upstream branch on push
 [diff]
-	algorithm = histogram    # Clearer diffs on moved/edited lines
-	colorMoved = plain       # Highlight moved blocks in diffs
-	mnemonicPrefix = true    # More intuitive refs in diff output
+	algorithm = histogram      # Clearer diffs on moved/edited lines
+	colorMoved = plain         # Highlight moved blocks in diffs
+	mnemonicPrefix = true      # More intuitive refs in diff output
 [commit]
-	verbose = true           # Include diff comment in commit message template
+	verbose = true             # Include diff comment in commit message template
 [column]
-	ui = auto 			     # Output in columns when possible
+	ui = auto                  # Output in columns when possible
 [branch]
-	sort = -committerdate    # Sort branches by most recent commit first
+	sort = -committerdate      # Sort branches by most recent commit first
 [tag]
-	sort = -version:refname  # Sort version numbers as you would expect
+	sort = -version:refname    # Sort version numbers as you would expect
 [rerere]
-	enabled = true           # Record and reuse conflict resolutions
-	autoupdate = true        # Apply stored conflict resolutions automatically
-[user]
-	name = James King
+	enabled = true             # Record and reuse conflict resolutions
+	autoupdate = true          # Apply stored conflict resolutions automatically
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
