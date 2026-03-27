@@ -60,6 +60,9 @@ EOBUNDLES
 
 antigen apply
 
+# Don't auto-connect to tmux when in an SSH session
+[[ -n "$SSH_CONNECTION" ]] && ZSH_TMUX_AUTOCONNECT=false
+
 zstyle :omz:plugins:ssh-agent agent-forwarding on
 zstyle :omz:plugins:ssh-agent lifetime 4h
 
@@ -84,8 +87,8 @@ unalias gd
 alias gdiff='git diff'
 
 # Import Omarchy base functions and envs
-source ~/.local/share/omarchy/default/bash/functions
 source ~/.local/share/omarchy/default/bash/envs
+source ~/.local/share/omarchy/default/bash/functions
 
 # Override omachy 'c' alias
 alias c='composer'
