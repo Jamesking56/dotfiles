@@ -29,6 +29,9 @@ PACMAN_PKGS=(
   wp-cli
   xsel
   mc
+  ncdu
+  vorta
+  yq
   composer
   php
   php-fpm
