@@ -20,6 +20,7 @@ PACMAN_PKGS=(
   graphviz
   helm
   kubectl
+  prettyping
   python-distro
   python-setuptools
   rclone

@@ -54,3 +54,7 @@ alias r='rails'
 alias sail="bash vendor/bin/sail"
 alias vim="nvim"
 alias zsh-refresh="antigen update && antigen cleanup && source ~/.zshrc"
+
+# Overrides with better alternatives
+alias cat='bat'
+alias ping='prettyping --nolegend'
