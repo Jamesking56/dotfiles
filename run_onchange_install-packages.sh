@@ -56,6 +56,7 @@ YAY_PKGS=(
   lens-bin
   mattermost-desktop-bin
   mycli
+  noti
   opencode-bin
   ssh-import-id
   vesktop-bin
