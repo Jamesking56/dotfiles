@@ -57,7 +57,7 @@ YAY_PKGS=(
   mattermost-desktop-bin
   mycli
   noti
-  opencode-bin
+  opencode-desktop-bin
   ssh-import-id
   vesktop-bin
   zsh
