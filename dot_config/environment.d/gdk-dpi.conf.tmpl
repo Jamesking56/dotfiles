@@ -1,0 +1,5 @@
+# DPI scaling
+# Only needed on desktop with HiDPI monitor
+{{ if .is_desktop }}
+GDK_DPI_SCALE=1
+{{ end }}
