@@ -214,6 +214,11 @@ address=/test/127.0.0.1
 listen-address=127.0.0.1
 bind-interfaces
 EOF
+sudo tee /etc/dnsmasq.d/tailscale.conf > /dev/null <<'EOF'
+server=/ts.net/100.100.100.100
+server=/taild2e412.ts.net/100.100.100.100
+server=/tail1d05e.ts.net/100.100.100.100
+EOF
 sudo systemctl restart dnsmasq
 valet restart
 # Lock resolv.conf to prevent Tailscale and valet-dns from corrupting it
