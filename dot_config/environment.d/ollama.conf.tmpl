@@ -1,0 +1,5 @@
+# Ollama network configuration
+# Only needed on desktop where ollama runs locally
+{{ if .is_desktop }}
+OLLAMA_HOST=0.0.0.0:11434
+{{ end }}

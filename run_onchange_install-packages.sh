@@ -228,6 +228,26 @@ if ! sudo lsattr /opt/valet-linux/resolv.conf 2>/dev/null | grep -q 'i'; then
 fi
 
 # -----------------------------
+# Git repositories
+# -----------------------------
+declare -A GIT_REPOS=(
+  ["$HOME/.claude"]="git@github.com:Varsuite-Media-Group-Ltd/claude-config.git"
+  ["$HOME/Work/20i-mcp"]="git@github.com:Varsuite-Media-Group-Ltd/20i-mcp.git"
+)
+
+echo "Cloning/updating git repositories..."
+for repo_dir in "${!GIT_REPOS[@]}"; do
+  repo_url="${GIT_REPOS[$repo_dir]}"
+  if [ ! -d "$repo_dir" ]; then
+    echo "  Cloning $repo_url -> $repo_dir"
+    git clone "$repo_url" "$repo_dir"
+  elif [ -d "$repo_dir/.git" ]; then
+    echo "  Updating $repo_dir"
+    (cd "$repo_dir" && git pull)
+  fi
+done
+
+# -----------------------------
 # Finish
 # -----------------------------
 omarchy-show-done

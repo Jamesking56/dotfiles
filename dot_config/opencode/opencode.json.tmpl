@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
+  "mcp": {
+    "20i": {
+      "type": "local",
+      "command": ["node", "{{ .chezmoi.homeDir }}/Work/20i-mcp/build/index.js"]
+    }
+  },
+  "provider": {
+    "ollama": {
+      "name": "Ollama",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "{{ if .is_desktop }}http://localhost:11434/v1{{ else }}http://james-desktop.tail1d05e.ts.net:11434/v1{{ end }}"
+      },
+      "models": {
+        "qwen3-coder:30b": {
+          "_launch": {{ .is_desktop }},
+          "name": "qwen3-coder:30b"
+        }
+      }
+    }
+  }
+}
