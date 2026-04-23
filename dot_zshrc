@@ -98,3 +98,6 @@ if command -v try &> /dev/null; then
 fi
 
 export PATH="$HOME/.config/composer/vendor/bin:$HOME/.local/bin:$HOME/bin:$HOME/.opencode/bin:$PATH"
+
+# opencode
+export PATH=/home/jamesking56/.opencode/bin:$PATH
