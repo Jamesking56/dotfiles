@@ -262,7 +262,8 @@ for repo_dir in "${!GIT_REPOS[@]}"; do
   fi
 done
 
-pipx reinstall mycli
+pipx ensurepath
+pipx reinstall mycli || pipx install mycli
 
 # -----------------------------
 # Finish
