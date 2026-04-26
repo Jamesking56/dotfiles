@@ -266,6 +266,14 @@ pipx ensurepath
 pipx reinstall mycli || pipx install mycli
 
 # -----------------------------
+# Update omarchy skill
+# -----------------------------
+if [ -d ~/.local/share/omarchy/default/omarchy-skill ]; then
+  rm -rf ~/.claude/skills/omarchy
+  cp -r ~/.local/share/omarchy/default/omarchy-skill ~/.claude/skills/omarchy
+fi
+
+# -----------------------------
 # Finish
 # -----------------------------
 omarchy-show-done
