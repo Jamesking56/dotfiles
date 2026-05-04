@@ -58,3 +58,4 @@ alias zsh-refresh="antigen update && antigen cleanup && source ~/.zshrc"
 # Overrides with better alternatives
 alias cat='bat'
 alias ping='prettyping --nolegend'
+alias whois='rdap'
