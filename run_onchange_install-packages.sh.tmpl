@@ -294,9 +294,11 @@ if [ -d ~/.local/share/omarchy/default/omarchy-skill ]; then
 fi
 
 # -----------------------------
-# Sync AUR votes
+# Sync AUR votes (desktop only)
 # -----------------------------
-aur-sync-vote --explicit
+if [ "$(hostname)" = "James-Desktop" ]; then
+  aur-sync-vote --explicit
+fi
 
 # -----------------------------
 # Finish
