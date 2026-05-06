@@ -2,7 +2,8 @@
 {{ if .is_desktop }}
 # Desktop: Allow remote connections to local Ollama
 OLLAMA_HOST=0.0.0.0:11434
+OLLAMA_GPU=cuda
 {{ else }}
 # Laptop: Connect to desktop's Ollama via Tailscale MagicDNS
-OLLAMA_HOST=James-Desktop.tail1d05e.ts.net:11434
+OLLAMA_HOST=james-desktop.tail1d05e.ts.net:11434
 {{ end }}
