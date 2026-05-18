@@ -78,6 +78,16 @@ YAY_PKGS=(
   zsh
 )
 
+# Ensure mise-managed Python has AUR build dependencies
+# mise Python takes PATH precedence over system Python, but AUR makedepends
+# (python-installer, python-setuptools-scm, etc.) only install to system Python.
+# Without these, python -m build and python -m installer fail during makepkg.
+PYTHON_BIN=$(command -v python 2>/dev/null || true)
+if echo "$PYTHON_BIN" | grep -q "mise"; then
+  echo "mise-managed Python detected at $PYTHON_BIN; ensuring AUR build deps are installed..."
+  pip install --quiet installer setuptools-scm 2>/dev/null || true
+fi
+
 echo "Installing core packages..."
 sudo pacman -S --noconfirm --needed "${PACMAN_PKGS[@]}"
 yay -S --noconfirm --needed "${YAY_PKGS[@]}"
