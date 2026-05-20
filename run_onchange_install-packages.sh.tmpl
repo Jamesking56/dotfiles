@@ -70,7 +70,6 @@ YAY_PKGS=(
   jetbrains-toolbox
   lens-bin
   mattermost-desktop-bin
-  mycli
   noti
   opencode-desktop-bin
   rdap-bin
@@ -311,6 +310,8 @@ for repo_dir in "${!GIT_REPOS[@]}"; do
   fi
 done
 
+# Remove system Python mycli if installed (conflicts with pipx version)
+python -m pip uninstall -y mycli 2>/dev/null || true
 pipx ensurepath
 pipx reinstall mycli || pipx install mycli
 
