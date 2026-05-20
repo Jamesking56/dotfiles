@@ -51,6 +51,7 @@ PACMAN_PKGS=(
   php
   php-fpm
   php-gd
+  php-igbinary
   php-imagick
   php-pgsql
   php-redis
@@ -97,9 +98,28 @@ then
   curl -sSL https://raw.githubusercontent.com/Gu1llaum-3/sshm/main/install/unix.sh | bash
 fi
 
-# Enable Redis for main php package
-echo "extension=redis.so" | sudo tee /etc/php/conf.d/redis.ini > /dev/null
-sudo sed -i 's/;extension=igbinary/extension=igbinary/' /etc/php/conf.d/igbinary.ini
+# Enable system PHP extensions (main php package bundles .so files but they need ini files)
+for ext in bcmath gd iconv intl pdo_mysql sockets sodium; do
+  if [ ! -f "/etc/php/conf.d/${ext}.ini" ] && [ -f "/usr/lib/php/modules/${ext}.so" ]; then
+    echo "extension=${ext}.so" | sudo tee "/etc/php/conf.d/${ext}.ini" > /dev/null
+  fi
+done
+
+# Enable pdo_sqlite and sqlite3 (from php-sqlite package)
+if [ ! -f "/etc/php/conf.d/sqlite.ini" ]; then
+  printf "extension=pdo_sqlite.so\nextension=sqlite3.so\n" | sudo tee /etc/php/conf.d/sqlite.ini > /dev/null
+fi
+
+# Enable redis for system PHP
+if [ ! -f "/etc/php/conf.d/redis.ini" ]; then
+  echo "extension=redis.so" | sudo tee /etc/php/conf.d/redis.ini > /dev/null
+fi
+
+# Enable igbinary for system PHP (ini exists but extension may be commented)
+sudo sed -i 's/^;extension=igbinary/extension=igbinary/' /etc/php/conf.d/igbinary.ini 2>/dev/null || true
+
+# Enable imagick for system PHP (ini exists but extension may be commented)
+sudo sed -i 's/^; extension = imagick/extension=imagick.so/' /etc/php/conf.d/imagick.ini 2>/dev/null || true
 
 # Remove Brave theming installed by Omarchy
 sudo rm -f /etc/brave/policies/managed/color.json
@@ -176,10 +196,10 @@ for ver in "${PHP_VERSIONS[@]}"; do
   done
 done
 
-# Special case: redis via PECL for PHP 8.4 (if missing package)
-if [ ! -f /etc/php84/conf.d/redis.ini ]; then
+# Special case: redis via PECL for PHP 8.4 (if AUR package is missing)
+if [ -d "/etc/php84" ] && [ ! -f "/etc/php84/conf.d/redis.ini" ]; then
   echo "Installing redis via PECL for PHP 8.4..."
-  yes '' | sudo pecl84 install --soft redis || true
+  yes '' | sudo pecl84 install --soft redis 2>/dev/null || true
   echo "extension=redis.so" | sudo tee /etc/php84/conf.d/redis.ini > /dev/null
 fi
 
