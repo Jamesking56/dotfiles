@@ -301,12 +301,20 @@ RouteMetric=600
 RouteMetric=600
 NETEOF
 
-# Clean up old valet-linux / dnsmasq files
+# Clean up old valet-linux completely
+sudo systemctl stop valet-dns 2>/dev/null || true
+sudo systemctl disable valet-dns 2>/dev/null || true
+systemctl --user stop valet-dns 2>/dev/null || true
+systemctl --user disable valet-dns 2>/dev/null || true
 sudo rm -f /etc/dnsmasq.d/valet.conf /etc/dnsmasq.d/valet-upstream.conf /etc/dnsmasq.d/tailscale.conf
-sudo rm -f /etc/systemd/system/valet-dns.service
+sudo rm -f /etc/systemd/system/valet-dns.service /etc/systemd/system/valet-dns.service.d/override.conf 2>/dev/null || true
+sudo rm -f /etc/sudoers.d/valet
+sudo rm -f /usr/local/bin/valet
+sudo rm -rf /etc/nginx/valet /usr/local/etc/nginx/valet 2>/dev/null || true
 sudo chattr -R -i /opt/valet-linux 2>/dev/null || true
 sudo rm -rf /opt/valet-linux
 sudo rm -f /etc/NetworkManager/conf.d/lerd.conf /etc/NetworkManager/dnsmasq.d/lerd.conf
+rm -rf "$HOME/.config/valet" 2>/dev/null || true
 
 # -----------------------------
 # Git repositories
