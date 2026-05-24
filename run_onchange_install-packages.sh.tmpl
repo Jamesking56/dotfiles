@@ -267,6 +267,13 @@ else
 fi
 lerd park ~/Work
 
+# Configure systemd-resolved for DNS (enable + start if not already running)
+sudo systemctl enable systemd-resolved 2>/dev/null || true
+if ! pidof systemd-resolved &>/dev/null; then
+  sudo systemctl start systemd-resolved
+  sleep 1
+fi
+
 # Always use Cloudflare as system DNS, route .test to lerd (single file to avoid key overrides)
 sudo mkdir -p /etc/systemd/resolved.conf.d
 # Clean up old split configs that could conflict
@@ -277,6 +284,13 @@ DNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com
 DNS=127.0.0.1:5300
 Domains=~test
 EOF
+
+# Point /etc/resolv.conf at systemd-resolved stub so all apps route through our DNS config
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+# Restart resolved to pick up the new config
+sudo systemctl restart systemd-resolved
+sleep 2
 
 # For systemd-networkd systems: prefer ethernet over WiFi, keep DHCP DNS for regular queries
 sudo tee /etc/systemd/network/20-wlan.network > /dev/null <<'NETEOF'
