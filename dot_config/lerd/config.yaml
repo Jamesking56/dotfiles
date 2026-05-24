@@ -1,0 +1,53 @@
+php:
+    default_version: "8.5"
+    xdebug_enabled: {}
+    extensions: {}
+node:
+    default_version: "22"
+nginx:
+    http_port: 80
+    https_port: 443
+dns:
+    enabled: true
+    tld: test
+parked_directories:
+    - /home/jamesking56/Lerd
+    - /home/jamesking56/Work
+services:
+    mailpit:
+        enabled: true
+        image: docker.io/axllent/mailpit:latest
+        port: 1025
+        extra_ports: []
+        last_op: update
+    meilisearch:
+        enabled: true
+        image: docker.io/getmeili/meilisearch:v1.42.1
+        port: 7700
+        extra_ports: []
+        last_op: update
+    mysql:
+        enabled: true
+        image: docker.io/library/mysql:8.4.9
+        port: 3306
+        extra_ports: []
+        last_op: update
+        canonical_version: "8.4"
+    postgres:
+        enabled: true
+        image: ""
+        port: 5432
+        extra_ports: []
+        canonical_version: "16"
+    redis:
+        enabled: true
+        image: docker.io/library/redis:7.4.9-alpine
+        port: 6379
+        extra_ports: []
+        last_op: update
+    rustfs:
+        enabled: true
+        image: docker.io/rustfs/rustfs:latest
+        port: 9000
+        extra_ports: []
+        last_op: update
