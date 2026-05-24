@@ -12,7 +12,6 @@ dns:
     tld: test
 parked_directories:
     - /home/jamesking56/Lerd
-    - /home/jamesking56/Work
 services:
     mailpit:
         enabled: true
@@ -26,13 +25,6 @@ services:
         port: 7700
         extra_ports: []
         last_op: update
-    mysql:
-        enabled: true
-        image: docker.io/library/mysql:8.4.9
-        port: 3306
-        extra_ports: []
-        last_op: update
-        canonical_version: "8.4"
     postgres:
         enabled: true
         image: ""
