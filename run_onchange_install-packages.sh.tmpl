@@ -266,13 +266,22 @@ else
 fi
 lerd park ~/Work
 
-# Register .test routing with systemd-resolved (works with both NetworkManager and systemd-networkd)
+# Always use Cloudflare as system DNS (fallback-safe regardless of DHCP)
 sudo mkdir -p /etc/systemd/resolved.conf.d
+sudo tee /etc/systemd/resolved.conf.d/10-cloudflare.conf > /dev/null <<'EOF'
+[Resolve]
+DNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com
+EOF
+
+# Register .test routing with systemd-resolved
 sudo tee /etc/systemd/resolved.conf.d/lerd.conf > /dev/null <<'EOF'
 [Resolve]
 DNS=127.0.0.1:5300
 Domains=~test
 EOF
+
+# Reload resolved to pick up both configs (no restart needed)
+sudo resolvectl reload 2>/dev/null || true
 
 # For systemd-networkd systems: prefer ethernet over WiFi, keep DHCP DNS for regular queries
 sudo tee /etc/systemd/network/20-wlan.network > /dev/null <<'NETEOF'
