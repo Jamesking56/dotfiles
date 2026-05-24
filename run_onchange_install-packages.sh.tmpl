@@ -257,40 +257,68 @@ for app in "${REMOVE_WEB_APPS[@]}"; do
 done
 
 # -----------------------------
-# Setup valet-linux
+# Setup lerd (local PHP dev environment)
 # -----------------------------
-if ! command -v valet; then
-  composer global require --no-interaction cpriego/valet-linux
-  valet install
+if ! command -v lerd; then
+  curl -fsSL https://raw.githubusercontent.com/geodro/lerd/main/install.sh | bash
 fi
-valet park ~/Work
-# Setup Cloudflare DNS for anything outside of valet 
-sudo mv /etc/resolv.conf /etc/resolv.conf.bak
-sudo tee /etc/resolv.conf > /dev/null <<'EOF'
-nameserver 127.0.0.1
+lerd update
+lerd park ~/Work
+lerd install
+
+# Configure systemd-resolved to route .test domains to lerd's dnsmasq
+sudo mkdir -p /etc/systemd/resolved.conf.d
+sudo tee /etc/systemd/resolved.conf.d/lerd.conf > /dev/null <<'EOF'
+[Resolve]
+DNS=127.0.0.1:5300
+Domains=~test
 EOF
-sudo tee /etc/dnsmasq.d/valet-upstream.conf > /dev/null <<'EOF'
-no-resolv
-server=1.1.1.1
-server=1.0.0.1
-EOF
-sudo tee /etc/dnsmasq.d/valet.conf > /dev/null <<'EOF'
-address=/test/127.0.0.1
-listen-address=127.0.0.1
-bind-interfaces
-EOF
-sudo tee /etc/dnsmasq.d/tailscale.conf > /dev/null <<'EOF'
-server=/ts.net/100.100.100.100
-server=/taild2e412.ts.net/100.100.100.100
-server=/tail1d05e.ts.net/100.100.100.100
-EOF
-sudo systemctl restart dnsmasq
-valet restart
-# Lock resolv.conf to prevent Tailscale and valet-dns from corrupting it
-if ! sudo lsattr /opt/valet-linux/resolv.conf 2>/dev/null | grep -q 'i'; then
-  sudo bash -c 'printf "nameserver 127.0.0.1\n" > /opt/valet-linux/resolv.conf'
-  sudo chattr +i /opt/valet-linux/resolv.conf
-fi
+
+# Configure systemd-networkd per-link .test routing for WiFi
+sudo tee /etc/systemd/network/20-wlan.network > /dev/null <<'NETEOF'
+[Match]
+Name=wl*
+
+[Link]
+RequiredForOnline=routable
+
+[Network]
+DHCP=yes
+MulticastDNS=yes
+DNS=127.0.0.1:5300
+Domains=~test
+
+# systemd-networkd does not set per-interface-type default route metrics
+# https://github.com/systemd/systemd/issues/17698
+# Explicitly set route metric, so that Ethernet is preferred over Wi-Fi and Wi-Fi is preferred over mobile broadband.
+# Use values from NetworkManager. From nm_device_get_route_metric_default in
+# https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/blob/main/src/core/devices/nm-device.c
+[DHCPv4]
+UseDNS=no
+RouteMetric=600
+
+[IPv6AcceptRA]
+UseDNS=no
+RouteMetric=600
+NETEOF
+
+# Point /etc/resolv.conf at systemd-resolved's stub resolver so
+# all applications (including pure-Go DNS) go through resolved
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+# Clean up old valet-linux / dnsmasq files
+sudo rm -f /etc/dnsmasq.d/valet.conf /etc/dnsmasq.d/valet-upstream.conf /etc/dnsmasq.d/tailscale.conf
+sudo rm -f /etc/systemd/system/valet-dns.service
+sudo rm -rf /opt/valet-linux
+# Restart services to apply DNS config
+sudo systemctl restart systemd-resolved
+sudo systemctl restart systemd-networkd
+
+# Clean up lerd's NetworkManager configs (not relevant on systemd-networkd)
+sudo rm -f /etc/NetworkManager/conf.d/lerd.conf /etc/NetworkManager/dnsmasq.d/lerd.conf
+
+# Restart lerd to pick up new config
+lerd install
 
 # -----------------------------
 # Git repositories
