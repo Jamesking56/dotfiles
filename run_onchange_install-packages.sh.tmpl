@@ -35,8 +35,6 @@ DNS=127.0.0.1:5300
 Domains=~test
 EOF
 sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-sudo systemctl restart systemd-resolved
-sleep 2
 
 # -----------------------------
 # Core system packages
@@ -172,10 +170,21 @@ done
 # Global Composer packages
 # -----------------------------
 echo "Installing and updating global Composer packages..."
-composer global require --no-interaction \
+echo "  Testing DNS resolution..."
+if ! getent hosts repo.packagist.org >/dev/null 2>&1; then
+  echo "  DNS resolution failed -- restarting systemd-resolved..."
+  sudo systemctl restart systemd-resolved
+  sleep 2
+  if ! getent hosts repo.packagist.org >/dev/null 2>&1; then
+    echo "  ERROR: DNS still failing after restart. Trying alternate resolv.conf..."
+    echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
+  fi
+fi
+echo "  DNS OK"
+/usr/bin/php /usr/bin/composer global require --no-interaction \
   laravel/installer \
   laravel/cloud-cli
-composer global update --no-interaction
+/usr/bin/php /usr/bin/composer global update --no-interaction
 
 # -----------------------------
 # PHP Versions and Extensions
