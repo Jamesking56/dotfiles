@@ -266,26 +266,28 @@ else
 fi
 lerd park ~/Work
 
-# Route .test queries to lerd's dnsmasq (per-link, safe: Domains=~test scopes it to .test only)
+# Register .test routing with systemd-resolved (works with both NetworkManager and systemd-networkd)
+sudo mkdir -p /etc/systemd/resolved.conf.d
+sudo tee /etc/systemd/resolved.conf.d/lerd.conf > /dev/null <<'EOF'
+[Resolve]
+DNS=127.0.0.1:5300
+Domains=~test
+EOF
+
+# For systemd-networkd systems: prefer ethernet over WiFi, keep DHCP DNS for regular queries
 sudo tee /etc/systemd/network/20-wlan.network > /dev/null <<'NETEOF'
 [Match]
 Name=wl*
 
-[Link]
-RequiredForOnline=routable
-
 [Network]
 DHCP=yes
-MulticastDNS=yes
 DNS=127.0.0.1:5300
 Domains=~test
 
 [DHCPv4]
-UseDNS=no
 RouteMetric=600
 
 [IPv6AcceptRA]
-UseDNS=no
 RouteMetric=600
 NETEOF
 
@@ -295,8 +297,6 @@ sudo rm -f /etc/systemd/system/valet-dns.service
 sudo chattr -R -i /opt/valet-linux 2>/dev/null || true
 sudo rm -rf /opt/valet-linux
 sudo rm -f /etc/NetworkManager/conf.d/lerd.conf /etc/NetworkManager/dnsmasq.d/lerd.conf
-# Also clean up the old global resolved config that was breaking DNS
-sudo rm -f /etc/systemd/resolved.conf.d/lerd.conf
 
 # -----------------------------
 # Git repositories
