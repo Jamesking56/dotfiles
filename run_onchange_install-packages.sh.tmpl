@@ -289,7 +289,6 @@ if ! command -v lerd; then
 else
   lerd update
 fi
-lerd park ~/Work
 
 # For systemd-networkd systems: prefer ethernet over WiFi, keep DHCP DNS for regular queries
 sudo tee /etc/systemd/network/20-wlan.network > /dev/null <<'NETEOF'
