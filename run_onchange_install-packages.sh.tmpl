@@ -261,10 +261,10 @@ done
 # -----------------------------
 if ! command -v lerd; then
   curl -fsSL https://raw.githubusercontent.com/geodro/lerd/main/install.sh | bash
+else
+  lerd update
 fi
-lerd update
 lerd park ~/Work
-lerd install
 
 # Configure systemd-resolved to route .test domains to lerd's dnsmasq
 sudo mkdir -p /etc/systemd/resolved.conf.d
@@ -318,7 +318,7 @@ sudo systemctl restart systemd-networkd
 sudo rm -f /etc/NetworkManager/conf.d/lerd.conf /etc/NetworkManager/dnsmasq.d/lerd.conf
 
 # Restart lerd to pick up new config
-lerd install
+systemctl --user restart lerd-dns
 
 # -----------------------------
 # Git repositories
