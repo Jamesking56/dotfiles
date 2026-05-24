@@ -290,6 +290,9 @@ else
   lerd update
 fi
 
+# Enable Lerd MCP globally for all AI assistant sessions
+lerd mcp:enable-global
+
 # For systemd-networkd systems: prefer ethernet over WiFi, keep DHCP DNS for regular queries
 sudo tee /etc/systemd/network/20-wlan.network > /dev/null <<'NETEOF'
 [Match]
