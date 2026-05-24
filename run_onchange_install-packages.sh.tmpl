@@ -138,18 +138,13 @@ sudo systemctl enable sshd
 sudo systemctl start sshd
 
 # -----------------------------
-# Docker Containers
+# Remove standalone Docker containers (now managed by Lerd)
 # -----------------------------
-declare -A DOCKER_CONTAINERS=(
-  [mariadb11]="omarchy-install-docker-dbs MariaDB"
-  [postgres18]="omarchy-install-docker-dbs PostgreSQL"
-  [mailhog]="docker run --name mailhog -d -it --restart=unless-stopped -p 8025:8025 -p 1025:1025 mailhog/mailhog"
-)
-
-echo "Setting up Docker containers..."
-for container in "${!DOCKER_CONTAINERS[@]}"; do
-  if [ -z "$(docker ps -a -q -f name=$container)" ]; then
-    eval "${DOCKER_CONTAINERS[$container]}"
+for container in mariadb11 postgres18 mailhog; do
+  if [ -n "$(docker ps -a -q -f name=$container)" ]; then
+    echo "  Removing standalone $container (now managed by Lerd)..."
+    docker stop "$container" 2>/dev/null || true
+    docker rm -v "$container" 2>/dev/null || true
   fi
 done
 
