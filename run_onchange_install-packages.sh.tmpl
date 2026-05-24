@@ -156,10 +156,11 @@ done
 # -----------------------------
 # Global Composer packages
 # -----------------------------
-echo "Installing global Composer packages..."
+echo "Installing and updating global Composer packages..."
 composer global require --no-interaction \
   laravel/installer \
   laravel/cloud-cli
+composer global update --no-interaction
 
 # -----------------------------
 # PHP Versions and Extensions
