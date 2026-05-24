@@ -292,6 +292,7 @@ NETEOF
 # Clean up old valet-linux / dnsmasq files
 sudo rm -f /etc/dnsmasq.d/valet.conf /etc/dnsmasq.d/valet-upstream.conf /etc/dnsmasq.d/tailscale.conf
 sudo rm -f /etc/systemd/system/valet-dns.service
+sudo chattr -R -i /opt/valet-linux 2>/dev/null || true
 sudo rm -rf /opt/valet-linux
 sudo rm -f /etc/NetworkManager/conf.d/lerd.conf /etc/NetworkManager/dnsmasq.d/lerd.conf
 # Also clean up the old global resolved config that was breaking DNS
