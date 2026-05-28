@@ -149,6 +149,14 @@ rm -f ~/.ssh/authorized_keys
 ssh-import-id gh:Jamesking56
 
 # -----------------------------
+# Lerd service hostnames (so host PHP can reach podman containers)
+# -----------------------------
+if ! grep -q "lerd-mysql" /etc/hosts; then
+  echo "# Lerd services (podman containers exposed on localhost)
+127.0.0.1 lerd-mysql lerd-redis lerd-mailpit lerd-meilisearch lerd-postgres lerd-rustfs" | sudo tee -a /etc/hosts > /dev/null
+fi
+
+# -----------------------------
 # Enable SSH server over LAN
 # -----------------------------
 sudo ufw allow from 192.168.0.0/24 to any port 22
