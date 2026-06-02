@@ -56,6 +56,6 @@ alias vim="nvim"
 alias zsh-refresh="antigen update && antigen cleanup && source ~/.zshrc"
 
 # Overrides with better alternatives
-alias cat='bat'
+alias cat='bat -pp'
 alias ping='prettyping --nolegend'
 alias whois='rdap'
