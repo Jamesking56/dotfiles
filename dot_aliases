@@ -50,6 +50,7 @@ alias d='docker'
 alias lg='lazygit'
 alias mysql="mycli"
 alias n="nvim"
+alias oc="opencode"
 alias r='rails'
 alias sail="bash vendor/bin/sail"
 alias vim="nvim"
