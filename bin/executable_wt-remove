@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+
+worktree_dir=$(pwd)
+worktree_name=$(basename "$worktree_dir")
+
+main_dir=$(git worktree list | awk 'NR==1{print $1}')
+
+if [ ! -d "$main_dir" ]; then
+    echo "Error: Could not determine main project directory" >&2
+    exit 1
+fi
+
+if [ "$worktree_dir" = "$main_dir" ]; then
+    echo "Error: Refusing to remove the main project directory. Are you in a worktree?" >&2
+    exit 1
+fi
+
+cd "$main_dir"
+
+echo "Removing worktree: $worktree_name"
+lerd worktree remove --force "$worktree_dir"
+
+db_user=$(grep "^DB_USERNAME=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
+db_pass=$(grep "^DB_PASSWORD=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
+
+if [ -n "$db_user" ] && [ -n "$db_pass" ]; then
+    for db in "${worktree_name}-testing" "${worktree_name}_testing"; do
+        podman exec -e MYSQL_PWD="$db_pass" lerd-mysql mysql -u "$db_user" -e "DROP DATABASE IF EXISTS \`${db}\`" 2>/dev/null || true
+    done
+fi
+
+exec $SHELL

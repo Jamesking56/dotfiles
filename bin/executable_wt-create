@@ -1,0 +1,61 @@
+#!/bin/bash
+set -euo pipefail
+
+branch="${1:-}"
+if [ -z "$branch" ]; then
+    echo "Usage: worktree-create <branch-name>"
+    exit 1
+fi
+
+project_dir=$(pwd)
+project_name=$(basename "$project_dir")
+parent_dir=$(dirname "$project_dir")
+dir_suffix=$(echo "$branch" | tr '/' '-')
+worktree_dir="${parent_dir}/${project_name}-${dir_suffix}"
+
+if [ -d "$worktree_dir" ]; then
+    echo "Error: Worktree directory already exists: $worktree_dir"
+    exit 1
+fi
+
+if git show-ref --verify --quiet "refs/heads/$branch" || git ls-remote --exit-code --heads origin "$branch" > /dev/null 2>&1; then
+    lerd worktree add "$worktree_dir" "$branch"
+else
+    lerd worktree add -b "$branch" "$worktree_dir"
+fi
+
+cd "$worktree_dir"
+
+[ -f composer.json ] && composer install
+[ -f package.json ] && npm install --force
+
+if [ -f artisan ]; then
+    if grep -q "^DB_CONNECTION=sqlite" .env 2>/dev/null; then
+        :
+    else
+        db_name="${project_name}-${dir_suffix}"
+        testing_db="${db_name}_testing"
+
+        if grep -q "^DB_DATABASE=" .env 2>/dev/null; then
+            sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${db_name}/" .env
+        else
+            echo "DB_DATABASE=${db_name}" >> .env
+        fi
+
+        [ -f "$project_dir/.env.testing" ] && cp "$project_dir/.env.testing" .
+
+        if [ -f .env.testing ]; then
+            if grep -q "^DB_DATABASE=" .env.testing 2>/dev/null; then
+                sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${testing_db}/" .env.testing
+            else
+                echo "DB_DATABASE=${testing_db}" >> .env.testing
+            fi
+        fi
+
+        db_user=$(grep "^DB_USERNAME=" .env | tail -1 | cut -d= -f2-)
+        db_pass=$(grep "^DB_PASSWORD=" .env | tail -1 | cut -d= -f2-)
+        podman exec -e MYSQL_PWD="$db_pass" lerd-mysql mysql -u "$db_user" -e "CREATE DATABASE IF NOT EXISTS \`${testing_db}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+    fi
+fi
+
+exec $SHELL
