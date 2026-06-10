@@ -45,28 +45,21 @@ PACMAN_PKGS=(
   bind
   bitwarden
   bitwarden-cli
+  composer
+  docker
+  docker-buildx
+  docker-compose
   dosfstools
+  ghostty
+  git
   graphviz
+  hcloud
   helm
   kubectl
   mariadb-clients
-  ntfs-3g
-  prettyping
-  python-distro
-  python-pipx
-  python-setuptools
-  python-setuptools-scm
-  rclone
-  scrcpy
-  tmux
-  trash-cli
-  wp-cli
-  xsel
   mc
   ncdu
-  vorta
-  yq
-  composer
+  ntfs-3g
   php
   php-fpm
   php-gd
@@ -74,8 +67,25 @@ PACMAN_PKGS=(
   php-imagick
   php-pgsql
   php-redis
-  php-sqlite
   php-sodium
+  php-sqlite
+  podman
+  prettyping
+  python-distro
+  python-pipx
+  python-setuptools
+  python-setuptools-scm
+  rclone
+  rsync
+  scrcpy
+  tailscale
+  tmux
+  trash-cli
+  vorta
+  wp-cli
+  xsel
+  yq
+  zed
 )
 
 YAY_PKGS=(
@@ -87,12 +97,14 @@ YAY_PKGS=(
   cloudfleet-cli
   downgrade
   jetbrains-toolbox
+  laravel-moat
   lens-bin
   mattermost-desktop-bin
   noti
   opencode-desktop-bin
   rdap-bin
   ssh-import-id
+  stripe-cli-bin
   vesktop-bin
   zsh
 )
@@ -261,7 +273,7 @@ rm -rf "$PCOV_TMP"
 # -----------------------------
 REMOVE_PACKAGES=(
   alacritty
-  omarchy-chromium
+  chromium
   signal-desktop
   spotify
   typora
