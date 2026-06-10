@@ -29,33 +29,27 @@ cd "$worktree_dir"
 [ -f composer.json ] && composer install
 [ -f package.json ] && npm install --force
 
-if [ -f artisan ]; then
-    if grep -q "^DB_CONNECTION=sqlite" .env 2>/dev/null; then
-        :
-    else
-        db_name="${project_name}-${dir_suffix}"
-        testing_db="${db_name}_testing"
+# Copy .env.testing from the main project if it exists
+[ -f "$project_dir/.env.testing" ] && cp "$project_dir/.env.testing" .
 
-        if grep -q "^DB_DATABASE=" .env 2>/dev/null; then
-            sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${db_name}/" .env
+# Check if lerd created an isolated database
+db_name=$(grep "^DB_DATABASE=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
+main_db_name=$(grep "^DB_DATABASE=" "$project_dir/.env" 2>/dev/null | tail -1 | cut -d= -f2-)
+
+if [ -n "$db_name" ] && [ "$db_name" != "$main_db_name" ]; then
+    testing_db="${db_name}_testing"
+
+    if [ -f .env.testing ]; then
+        if grep -q "^DB_DATABASE=" .env.testing 2>/dev/null; then
+            sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${testing_db}/" .env.testing
         else
-            echo "DB_DATABASE=${db_name}" >> .env
+            echo "DB_DATABASE=${testing_db}" >> .env.testing
         fi
-
-        [ -f "$project_dir/.env.testing" ] && cp "$project_dir/.env.testing" .
-
-        if [ -f .env.testing ]; then
-            if grep -q "^DB_DATABASE=" .env.testing 2>/dev/null; then
-                sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${testing_db}/" .env.testing
-            else
-                echo "DB_DATABASE=${testing_db}" >> .env.testing
-            fi
-        fi
-
-        db_user=$(grep "^DB_USERNAME=" .env | tail -1 | cut -d= -f2-)
-        db_pass=$(grep "^DB_PASSWORD=" .env | tail -1 | cut -d= -f2-)
-        podman exec -e MYSQL_PWD="$db_pass" lerd-mysql mysql -u "$db_user" -e "CREATE DATABASE IF NOT EXISTS \`${testing_db}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
     fi
+
+    db_user=$(grep "^DB_USERNAME=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
+    db_pass=$(grep "^DB_PASSWORD=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
+    podman exec -e MYSQL_PWD="$db_pass" lerd-mysql mysql -u "$db_user" -e "CREATE DATABASE IF NOT EXISTS \`${testing_db}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 fi
 
 exec $SHELL

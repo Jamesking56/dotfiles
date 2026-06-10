@@ -16,18 +16,20 @@ if [ "$worktree_dir" = "$main_dir" ]; then
     exit 1
 fi
 
+db_user=$(grep "^DB_USERNAME=" "$main_dir/.env" 2>/dev/null | tail -1 | cut -d= -f2-)
+db_pass=$(grep "^DB_PASSWORD=" "$main_dir/.env" 2>/dev/null | tail -1 | cut -d= -f2-)
+db_name=$(grep "^DB_DATABASE=" "$worktree_dir/.env" 2>/dev/null | tail -1 | cut -d= -f2-)
+main_db=$(grep "^DB_DATABASE=" "$main_dir/.env" 2>/dev/null | tail -1 | cut -d= -f2-)
+
+if [ -n "$db_user" ] && [ -n "$db_pass" ] && [ -n "$db_name" ] && [ "$db_name" != "$main_db" ]; then
+    echo "Dropping isolated database: $db_name"
+    podman exec -e MYSQL_PWD="$db_pass" lerd-mysql mysql -u "$db_user" -e "DROP DATABASE IF EXISTS \`${db_name}\`" 2>/dev/null || true
+    podman exec -e MYSQL_PWD="$db_pass" lerd-mysql mysql -u "$db_user" -e "DROP DATABASE IF EXISTS \`${db_name}_testing\`" 2>/dev/null || true
+fi
+
 cd "$main_dir"
 
 echo "Removing worktree: $worktree_name"
 lerd worktree remove --force "$worktree_dir"
-
-db_user=$(grep "^DB_USERNAME=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
-db_pass=$(grep "^DB_PASSWORD=" .env 2>/dev/null | tail -1 | cut -d= -f2-)
-
-if [ -n "$db_user" ] && [ -n "$db_pass" ]; then
-    for db in "${worktree_name}-testing" "${worktree_name}_testing"; do
-        podman exec -e MYSQL_PWD="$db_pass" lerd-mysql mysql -u "$db_user" -e "DROP DATABASE IF EXISTS \`${db}\`" 2>/dev/null || true
-    done
-fi
 
 exec $SHELL
