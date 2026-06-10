@@ -25,6 +25,12 @@ services:
         port: 7700
         extra_ports: []
         last_op: update
+    mysql:
+        enabled: true
+        image: ""
+        port: 3306
+        extra_ports: []
+        canonical_version: "8.4"
     postgres:
         enabled: true
         image: ""
