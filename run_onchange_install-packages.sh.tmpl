@@ -365,6 +365,23 @@ for repo_dir in "${!GIT_REPOS[@]}"; do
   fi
 done
 
+# -----------------------------
+# Ponytail (opencode plugin)
+# -----------------------------
+# Guardrail: only install ponytail if opencode is already configured
+if [ -d "$HOME/.config/opencode" ]; then
+  PONYTAIL_DIR="$HOME/.local/share/ponytail"
+  if [ ! -d "$PONYTAIL_DIR" ]; then
+    echo "  Cloning ponytail -> $PONYTAIL_DIR"
+    git clone https://github.com/DietrichGebert/ponytail.git "$PONYTAIL_DIR"
+  elif [ -d "$PONYTAIL_DIR/.git" ]; then
+    echo "  Updating ponytail..."
+    (cd "$PONYTAIL_DIR" && git pull)
+  fi
+else
+  echo "  Skipping ponytail (opencode not yet configured)"
+fi
+
 # Remove system Python mycli if installed (conflicts with pipx version)
 python -m pip uninstall -y mycli 2>/dev/null || true
 pipx ensurepath
