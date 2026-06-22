@@ -2,6 +2,7 @@
 
 [user]
 	name = James King
+	signingkey = ~/.ssh/id_ed25519.pub
 [core]
 	autocrlf = input
 	editor = nvim
@@ -21,8 +22,11 @@
 	algorithm = histogram      # Clearer diffs on moved/edited lines
 	colorMoved = plain         # Highlight moved blocks in diffs
 	mnemonicPrefix = true      # More intuitive refs in diff output
+[gpg]
+	format = ssh
 [commit]
 	verbose = true             # Include diff comment in commit message template
+	gpgsign = true             # Sign all commits with SSH key
 [column]
 	ui = auto                  # Output in columns when possible
 [branch]
