@@ -4,6 +4,7 @@
     {
       "name": "Varsuite",
       "url": "https://mm.varsuite.co.uk/",
+      "isPredefined": false,
       "order": 0
     }
   ],
@@ -31,5 +32,8 @@
   "themeSyncing": true,
   "alwaysClose": false,
   "autoCheckForUpdates": true,
-  "alwaysMinimize": true
+  "alwaysMinimize": true,
+  "enableSentry": true,
+  "skippedVersions": [],
+  "useNativeTitleBar": false
 }
