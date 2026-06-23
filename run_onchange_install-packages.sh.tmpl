@@ -399,7 +399,7 @@ fi
 # Sync AUR votes (desktop only)
 # -----------------------------
 if [ "$(hostname)" = "James-Desktop" ]; then
-  aur-sync-vote --explicit || echo "WARNING: aur-sync-vote failed (known issue with php82-bz2 metadata)"
+  aur-sync-vote --remember --explicit || echo "WARNING: aur-sync-vote failed (known issue with php82-bz2 metadata)"
 fi
 
 # -----------------------------
