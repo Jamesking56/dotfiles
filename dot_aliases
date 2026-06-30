@@ -55,6 +55,7 @@ alias oc="opencode"
 alias ioc="tdl opencode"
 alias r='rails'
 alias sail="bash vendor/bin/sail"
+alias weather="curl https://wttr.in"
 alias vim="nvim"
 alias zsh-refresh="antigen update && antigen cleanup && source ~/.zshrc"
 
