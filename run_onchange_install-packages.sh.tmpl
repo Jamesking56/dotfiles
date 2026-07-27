@@ -14,6 +14,11 @@ set -euo pipefail
 sudo -v
 
 # -----------------------------
+# Update system packages
+# -----------------------------
+omarchy update -y
+
+# -----------------------------
 # Ensure DNS is configured before any network-dependent operations
 # -----------------------------
 sudo systemctl enable systemd-resolved 2>/dev/null || true
