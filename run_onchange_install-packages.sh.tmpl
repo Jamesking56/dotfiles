@@ -10,13 +10,8 @@ set -euo pipefail
 # EOF
 # sudo systemctl daemon-reload && sudo systemctl restart ollama
 
-trap 'kill $! 2>/dev/null' EXIT
-
-# Ask for sudo once
+# Ask for sudo once (omarchy pkg add handles its own sudo internally)
 sudo -v
-
-# Keep-alive: update sudo timestamp until script finishes
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # -----------------------------
 # Ensure DNS is configured before any network-dependent operations
