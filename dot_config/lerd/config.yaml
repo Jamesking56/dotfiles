@@ -1,15 +1,17 @@
 php:
     default_version: "8.5"
     xdebug_enabled: {}
-    extensions: {}
+    extensions: []
 node:
     default_version: "22"
+    managed: false
 nginx:
     http_port: 80
     https_port: 443
 dns:
     enabled: true
     tld: test
+auto_cleanup: true
 parked_directories:
     - /home/jamesking56/Lerd
 services:
