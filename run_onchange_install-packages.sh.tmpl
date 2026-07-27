@@ -121,8 +121,8 @@ if echo "$PYTHON_BIN" | grep -q "mise"; then
 fi
 
 echo "Installing core packages..."
-sudo pacman -S --noconfirm --needed "${PACMAN_PKGS[@]}"
-yay -S --noconfirm --needed "${YAY_PKGS[@]}"
+omarchy pkg add "${PACMAN_PKGS[@]}"
+omarchy pkg aur add "${YAY_PKGS[@]}"
 if ! command -v sshm >/dev/null 2>&1
 then
   # Install sshm
@@ -230,7 +230,7 @@ for ver in "${PHP_VERSIONS[@]}"; do
   done
 
   # Install PHP + extensions in one transaction to avoid dependency conflicts
-  yay -S --needed --noconfirm "${PKGS[@]}" || {
+  omarchy pkg aur add "${PKGS[@]}" || {
     echo "Warning: Some PHP $ver packages failed. You may need to rerun manually."
   }
 
@@ -281,11 +281,7 @@ REMOVE_PACKAGES=(
   xournalpp
 )
 
-for pkg in "${REMOVE_PACKAGES[@]}"; do
-  if pacman -Q "$pkg" &>/dev/null; then
-    sudo pacman -Rns --noconfirm "$pkg"
-  fi
-done
+omarchy pkg drop "${REMOVE_PACKAGES[@]}"
 
 # -----------------------------
 # Remove unwanted web apps
