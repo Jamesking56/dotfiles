@@ -21,11 +21,8 @@ antigen bundles <<EOBUNDLES
     fzf
     gh
     git
-    helm
     isodate
-    kubectl
     laravel
-    minikube
     mise
     nmap
     npm
@@ -40,7 +37,6 @@ antigen bundles <<EOBUNDLES
     sudo
     systemd
     tailscale
-    terraform
     tmux
     transfer
     ufw
