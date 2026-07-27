@@ -47,14 +47,12 @@ alias watch-run='gh run watch'
 alias view-run='gh run view -w'
 
 # Tools
-alias 20i='~/Work/20i-cli/20i'
 alias d='docker'
 alias lg='lazygit'
 alias mysql="mycli"
 alias n="nvim"
 alias oc="opencode"
 alias ioc="tdl opencode"
-alias r='rails'
 alias sail="bash vendor/bin/sail"
 alias weather="curl https://wttr.in"
 alias vim="nvim"
