@@ -10,8 +10,13 @@ set -euo pipefail
 # EOF
 # sudo systemctl daemon-reload && sudo systemctl restart ollama
 
-# Ask for sudo once (omarchy pkg add handles its own sudo internally)
+# Cache sudo credentials and refresh in background so the script
+# doesn't prompt repeatedly. Uses sudo -n (non-interactive) so it
+# won't conflict with omarchy's own keepalive in interactive commands.
 sudo -v
+sudo_keepalive() { while true; do sudo -n true; sleep 60; done; }
+sudo_keepalive &
+trap "kill %1 2>/dev/null" EXIT
 
 # -----------------------------
 # Update system packages
