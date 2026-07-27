@@ -397,12 +397,12 @@ if [ -d ~/.local/share/omarchy/default/omarchy-skill ]; then
   cp -r ~/.local/share/omarchy/default/omarchy-skill ~/.claude/skills/omarchy
 fi
 
+{{ if .is_desktop -}}
 # -----------------------------
-# Sync AUR votes (desktop only)
+# Sync AUR votes
 # -----------------------------
-if [ "$(hostname)" = "James-Desktop" ]; then
-  aur-sync-vote --remember --explicit || echo "WARNING: aur-sync-vote failed (known issue with php82-bz2 metadata)"
-fi
+aur-sync-vote --remember --explicit || echo "WARNING: aur-sync-vote failed (known issue with php82-bz2 metadata)"
+{{ end -}}
 
 # -----------------------------
 # Finish
