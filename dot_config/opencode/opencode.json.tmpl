@@ -3,9 +3,9 @@
   "autoupdate": false,
   "plugin": ["{{ .chezmoi.homeDir }}/.local/share/ponytail/.opencode/plugins/ponytail.mjs"],
   "mcp": {
-    "20i": {
-      "type": "local",
-      "command": ["node", "{{ .chezmoi.homeDir }}/Work/20i-mcp/build/index.js"]
+    "tailkit": {
+      "type": "remote",
+      "url": "https://tailkit.com/mcp"
     }
   },
   "provider": {
