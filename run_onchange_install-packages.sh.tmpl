@@ -24,6 +24,44 @@ trap "kill %1 2>/dev/null" EXIT
 omarchy update -y
 
 # -----------------------------
+# Remove unwanted packages
+# -----------------------------
+REMOVE_PACKAGES=(
+  1password
+  1password-cli
+  alacritty
+  chromium
+  cloudfleet-cli
+  hcloud
+  helm
+  kubectl
+  kubectl-cnpg
+  lens-bin
+  mattermost-desktop-bin
+  signal-desktop
+  spotify
+  typora
+  xournalpp
+)
+
+omarchy pkg drop "${REMOVE_PACKAGES[@]}"
+
+# -----------------------------
+# Remove unwanted web apps
+# -----------------------------
+REMOVE_WEB_APPS=(
+  Basecamp
+  Discord
+  Figma
+  Fizzy
+  HEY
+)
+
+for app in "${REMOVE_WEB_APPS[@]}"; do
+  omarchy-webapp-remove "$app"
+done
+
+# -----------------------------
 # Ensure DNS is configured before any network-dependent operations
 # -----------------------------
 sudo systemctl enable systemd-resolved 2>/dev/null || true
@@ -266,44 +304,6 @@ for ver in "${PHP_VERSIONS[@]}"; do
 done
 popd
 rm -rf "$PCOV_TMP"
-
-# -----------------------------
-# Remove unwanted packages
-# -----------------------------
-REMOVE_PACKAGES=(
-  1password
-  1password-cli
-  alacritty
-  chromium
-  cloudfleet-cli
-  hcloud
-  helm
-  kubectl
-  kubectl-cnpg
-  lens-bin
-  mattermost-desktop-bin
-  signal-desktop
-  spotify
-  typora
-  xournalpp
-)
-
-omarchy pkg drop "${REMOVE_PACKAGES[@]}"
-
-# -----------------------------
-# Remove unwanted web apps
-# -----------------------------
-REMOVE_WEB_APPS=(
-  Basecamp
-  Discord
-  Figma
-  Fizzy
-  HEY
-)
-
-for app in "${REMOVE_WEB_APPS[@]}"; do
-  omarchy-webapp-remove "$app"
-done
 
 # -----------------------------
 # Setup lerd (local PHP dev environment)
