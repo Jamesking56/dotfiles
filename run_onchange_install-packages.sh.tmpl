@@ -40,7 +40,6 @@ sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 # Core system packages
 # -----------------------------
 PACMAN_PKGS=(
-  1password-cli
   age
   bind
   bitwarden
@@ -53,13 +52,11 @@ PACMAN_PKGS=(
   ghostty
   git
   graphviz
-  hcloud
-  helm
-  kubectl
   mariadb-clients
   mc
   ncdu
   ntfs-3g
+  pgcli
   php
   php-fpm
   php-gd
@@ -89,18 +86,14 @@ PACMAN_PKGS=(
 )
 
 YAY_PKGS=(
-  1password
   antigen
   brave-bin
   bruno-bin
   cheese
-  cloudfleet-cli
   downgrade
   hyprmon-bin
   jetbrains-toolbox
   laravel-moat
-  lens-bin
-  mattermost-desktop-bin
   noti
   opencode-desktop-bin
   rdap-bin
@@ -273,8 +266,16 @@ rm -rf "$PCOV_TMP"
 # Remove unwanted packages
 # -----------------------------
 REMOVE_PACKAGES=(
+  1password
+  1password-cli
   alacritty
   chromium
+  cloudfleet-cli
+  hcloud
+  helm
+  kubectl
+  lens-bin
+  mattermost-desktop-bin
   signal-desktop
   spotify
   typora
