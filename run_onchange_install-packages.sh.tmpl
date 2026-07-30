@@ -390,6 +390,9 @@ for repo in "${!SKILLS_INSTALLS[@]}"; do
   npx skills add "$repo" --skill "$skills" --agent $SKILLS_AGENTS --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to install from $repo"
 done
 
+echo "  Updating all global skills..."
+npx skills update --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to update skills"
+
 # Remove system Python mycli if installed (conflicts with pipx version)
 python -m pip uninstall -y mycli 2>/dev/null || true
 pipx ensurepath
