@@ -369,6 +369,14 @@ for repo_dir in "${!GIT_REPOS[@]}"; do
 done
 
 # -----------------------------
+# Clean up old ponytail checkout (now managed via opencode plugin)
+# -----------------------------
+if [ -d "$HOME/.local/share/ponytail" ]; then
+  echo "  Removing old ponytail checkout (now managed via opencode plugin)..."
+  rm -rf "$HOME/.local/share/ponytail"
+fi
+
+# -----------------------------
 # npx skills - Agent skills for AI assistants
 # -----------------------------
 echo "Installing agent skills..."
