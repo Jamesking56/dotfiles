@@ -368,6 +368,28 @@ for repo_dir in "${!GIT_REPOS[@]}"; do
   fi
 done
 
+# -----------------------------
+# npx skills - Agent skills for AI assistants
+# -----------------------------
+echo "Installing agent skills..."
+
+SKILLS_AGENTS="claude-code opencode"
+
+declare -A SKILLS_INSTALLS=(
+  ["https://github.com/vercel-labs/skills"]="find-skills"
+  ["https://github.com/mattpocock/skills"]="*"
+  ["https://github.com/anthropics/skills"]="frontend-design"
+  ["https://github.com/vercel-labs/agent-browser"]="agent-browser"
+  ["https://github.com/addyosmani/web-quality-skills"]="accessibility"
+  ["https://github.com/typefully/agent-skills"]="typefully"
+)
+
+for repo in "${!SKILLS_INSTALLS[@]}"; do
+  skills="${SKILLS_INSTALLS[$repo]}"
+  echo "  npx skills add '$repo' ($skills)..."
+  npx skills add "$repo" --skill "$skills" --agent $SKILLS_AGENTS --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to install from $repo"
+done
+
 # Remove system Python mycli if installed (conflicts with pipx version)
 python -m pip uninstall -y mycli 2>/dev/null || true
 pipx ensurepath
