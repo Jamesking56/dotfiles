@@ -23,11 +23,8 @@ SUDO_KEEPALIVE_PID=$!
 # Parallel job helpers
 # -----------------------------
 # AUR packages build with makepkg. /etc/makepkg.conf has MAKEFLAGS commented
-# out, which means each build runs single-threaded. Use all cores by default,
-# and give each parallel build an equal share.
+# out, which means each build runs single-threaded. Use all cores.
 NCORES=$(nproc)
-NCORES_PER_BUILD=$((NCORES / 3))
-[[ $NCORES_PER_BUILD -lt 1 ]] && NCORES_PER_BUILD=1
 export MAKEFLAGS="-j${NCORES}"
 
 # Background jobs log to files so parallel output doesn't interleave.
@@ -134,55 +131,6 @@ setup_pipx() {
   pipx reinstall mycli || pipx install mycli
 }
 
-install_php_version() {
-  local ver="$1"
-  local failed=0
-  local pkgs=("php${ver}")
-  local ext
-  for ext in "${SAFE_EXTENSIONS[@]}"; do
-    pkgs+=("php${ver}-${ext}")
-  done
-
-  echo "==> Installing/upgrading PHP $ver + safe extensions..."
-  if ! omarchy pkg aur add "${pkgs[@]}"; then
-    echo "Warning: Some PHP $ver packages failed."
-    failed=1
-  fi
-
-  for ext in "${TRICKY_EXTENSIONS[@]}"; do
-    echo "Installing tricky extension php${ver}-${ext}..."
-    omarchy pkg aur add "php${ver}-${ext}" || {
-      echo "Failed to install php${ver}-${ext}. Please install manually."
-    }
-  done
-
-  if [[ $ver == "84" ]]; then
-    # redis via PECL for PHP 8.4 (if AUR package is missing)
-    if [ -d "/etc/php84" ] && [ ! -f "/etc/php84/conf.d/redis.ini" ]; then
-      echo "Installing redis via PECL for PHP 8.4..."
-      yes '' | sudo pecl84 install --soft redis 2>/dev/null || true
-      echo "extension=redis.so" | sudo tee /etc/php84/conf.d/redis.ini > /dev/null
-    fi
-  fi
-
-  return $failed
-}
-
-build_pcov() {
-  local ver="$1"
-  local dir="$2"
-  echo "==> Building pcov for PHP $ver..."
-  cd "$dir"
-  make clean 2>/dev/null || true
-  "phpize${ver}" >/dev/null 2>&1 || { echo "phpize${ver} failed"; return 1; }
-  ./configure --with-php-config="/usr/bin/php-config${ver}" >/dev/null 2>&1 || { echo "configure failed for PHP $ver"; return 1; }
-  make || { echo "make failed for PHP $ver"; return 1; }
-  sudo make install || { echo "make install failed for PHP $ver"; return 1; }
-  if [ ! -f "/etc/php${ver}/conf.d/pcov.ini" ]; then
-    printf "extension=pcov.so\npcov.enabled=1\n" | sudo tee "/etc/php${ver}/conf.d/pcov.ini" > /dev/null
-  fi
-}
-
 # -----------------------------
 # Remove unwanted packages
 # -----------------------------
@@ -201,9 +149,13 @@ REMOVE_PACKAGES=(
   spotify
   typora
   xournalpp
+  # Old multi-version host PHP. Lerd owns project runtimes now; the host only
+  # keeps the system PHP 8.5 package (in PACMAN_PKGS). omarchy pkg drop
+  # recurses, so the orphaned split packages (curl, dom, xdebug, redis, ...) go too.
+  php82
+  php83
+  php84
 )
-
-omarchy pkg drop "${REMOVE_PACKAGES[@]}"
 
 # -----------------------------
 # Remove unwanted web apps
@@ -391,56 +343,8 @@ net_job "pipx" "" setup_pipx
 net_job "docker" "" cleanup_docker_containers
 
 # -----------------------------
-# PHP Versions and Extensions
-# -----------------------------
-PHP_VERSIONS=(84 83 82)
-
-# Extensions safe to bulk-install
-SAFE_EXTENSIONS=(bcmath cli curl dom exif fileinfo fpm gd iconv intl mbstring mysql openssl pcntl pdo pecl pgsql phar posix simplexml sqlite sockets sodium tokenizer xml xmlreader xmlwriter zip)
-
-# Extensions that often fail and need manual installation
-TRICKY_EXTENSIONS=(redis xdebug)
-
-echo "Upgrading/installing PHP versions and extensions per version..."
-echo "  Building PHP ${PHP_VERSIONS[*]} in parallel (each build uses -j${NCORES_PER_BUILD})."
-
-PHP_PIDS=()
-PHP_LABELS=()
-for ver in "${PHP_VERSIONS[@]}"; do
-  background_job "php-$ver" "-j${NCORES_PER_BUILD}" install_php_version "$ver"
-  PHP_PIDS+=("${BACKGROUND_PIDS[-1]}")
-  PHP_LABELS+=("php-$ver")
-done
-
-for i in "${!PHP_PIDS[@]}"; do
-  if wait "${PHP_PIDS[$i]}"; then
-    echo "  PHP ${PHP_LABELS[$i]#php-}: OK"
-  else
-    echo "  PHP ${PHP_LABELS[$i]#php-}: FAILED (see $LOG_DIR/${PHP_LABELS[$i]}.log)"
-    tail -n 20 "$LOG_DIR/${PHP_LABELS[$i]}.log" 2>/dev/null | sed 's/^/    /'
-  fi
-done
-
-# Build and install pcov for all PHP versions (parallel across versions)
-echo "Building pcov for all PHP versions..."
-PCOV_TMP=$(mktemp -d)
-git clone https://github.com/krakjoe/pcov.git "$PCOV_TMP/pcov"
-PCOV_PIDS=()
-for ver in "${PHP_VERSIONS[@]}"; do
-  cp -a "$PCOV_TMP/pcov" "$PCOV_TMP/pcov-$ver"
-  background_job "pcov-$ver" "-j${NCORES_PER_BUILD}" build_pcov "$ver" "$PCOV_TMP/pcov-$ver"
-  PCOV_PIDS+=("${BACKGROUND_PIDS[-1]}")
-done
-
-for i in "${!PCOV_PIDS[@]}"; do
-  if wait "${PCOV_PIDS[$i]}"; then
-    echo "  pcov ${PHP_VERSIONS[$i]}: OK"
-  else
-    echo "  pcov ${PHP_VERSIONS[$i]}: FAILED (see $LOG_DIR/pcov-${PHP_VERSIONS[$i]}.log)"
-    tail -n 20 "$LOG_DIR/pcov-${PHP_VERSIONS[$i]}.log" 2>/dev/null | sed 's/^/    /'
-  fi
-done
-rm -rf "$PCOV_TMP"
+# PHP versions: only the system PHP 8.5 package (see PACMAN_PKGS above).
+# Project runtimes are managed by Lerd, so no AUR phpXX versions are needed.
 
 # -----------------------------
 # Wait for remaining background tasks
@@ -528,7 +432,7 @@ fi
 # -----------------------------
 # Sync AUR votes
 # -----------------------------
-aur-sync-vote --remember --explicit || echo "WARNING: aur-sync-vote failed (known issue with php82-bz2 metadata)"
+aur-sync-vote --remember --explicit || echo "WARNING: aur-sync-vote failed"
 {{ end -}}
 
 # -----------------------------
