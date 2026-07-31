@@ -48,14 +48,19 @@ alias view-run='gh run view -w'
 
 # Tools
 alias d='docker'
+alias insights="cpx nunomaduro/phpinsights"
+alias ioc="tdl opencode"
 alias lg='lazygit'
 alias lcloud='cpx laravel/cloud-cli'
 alias lnew='cpx laravel/installer new'
 alias mysql="mycli"
 alias n="nvim"
 alias oc="opencode"
-alias ioc="tdl opencode"
+alias pest="cpx pestphp/pest --parallel --tia"
+alias pint="cpx laravel/pint"
+alias rector="cpx rector/rector"
 alias sail="bash vendor/bin/sail"
+alias stan="cpx phpstan/phpstan"
 alias weather="curl https://wttr.in"
 alias vim="nvim"
 alias zsh-refresh="antigen update && antigen cleanup && source ~/.zshrc"
