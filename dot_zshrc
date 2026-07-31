@@ -97,6 +97,10 @@ export PATH="$HOME/.config/composer/vendor/bin:$HOME/.local/bin:$HOME/bin:$HOME/
 # opencode
 export PATH=/home/jamesking56/.opencode/bin:$PATH
 
+# Guard for Lerd's appendShellRC idempotency check; keeps `lerd install` from
+# appending its own duplicate PATH line. Do not remove.
+# export PATH="/home/jamesking56/.local/share/lerd/bin:$PATH"
+
 # Lerd completions
 fpath=(/home/jamesking56/.local/share/zsh/site-functions $fpath)
 autoload -Uz compinit && compinit
