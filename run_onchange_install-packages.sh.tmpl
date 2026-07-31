@@ -152,7 +152,7 @@ install_php_version() {
 
   for ext in "${TRICKY_EXTENSIONS[@]}"; do
     echo "Installing tricky extension php${ver}-${ext}..."
-    yay -S --needed --noconfirm "php${ver}-${ext}" --mflags --nocheck || {
+    omarchy pkg aur add "php${ver}-${ext}" || {
       echo "Failed to install php${ver}-${ext}. Please install manually."
     }
   done
@@ -183,11 +183,6 @@ build_pcov() {
     printf "extension=pcov.so\npcov.enabled=1\n" | sudo tee "/etc/php${ver}/conf.d/pcov.ini" > /dev/null
   fi
 }
-
-# -----------------------------
-# Update system packages
-# -----------------------------
-omarchy update -y
 
 # -----------------------------
 # Remove unwanted packages
@@ -273,8 +268,11 @@ declare -A SKILLS_INSTALLS=(
 )
 
 net_job "skills" "" install_skills
-net_job "lerd" "" setup_lerd
 net_job "sshm" "" install_sshm
+
+# setup_lerd runs on the main thread (not a background job) because
+# `lerd update` sometimes prompts for input.
+setup_lerd
 
 # -----------------------------
 # Core system packages
