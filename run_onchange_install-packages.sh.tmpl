@@ -103,8 +103,7 @@ setup_lerd() {
   else
     lerd update
   fi
-  echo "Enabling Lerd MCP globally for all AI assistant sessions..."
-  lerd mcp:enable-global
+  echo "Lerd MCP is registered per-agent via their own configs, not globally."
 }
 
 install_skills() {
