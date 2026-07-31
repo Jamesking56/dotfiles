@@ -81,7 +81,7 @@ import_ssh_keys() {
 }
 
 setup_composer() {
-  echo "Installing and updating global Composer packages..."
+  echo "Installing global Composer packages declared in composer.json..."
   echo "  Testing DNS resolution..."
   if ! getent hosts repo.packagist.org >/dev/null 2>&1; then
     echo "  DNS resolution failed -- restarting systemd-resolved..."
@@ -93,9 +93,6 @@ setup_composer() {
     fi
   fi
   echo "  DNS OK"
-  /usr/bin/php /usr/bin/composer global require --no-interaction \
-    laravel/installer \
-    laravel/cloud-cli
   /usr/bin/php /usr/bin/composer global update --no-interaction
 }
 
