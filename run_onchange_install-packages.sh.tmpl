@@ -10,13 +10,182 @@ set -euo pipefail
 # EOF
 # sudo systemctl daemon-reload && sudo systemctl restart ollama
 
-# Cache sudo credentials and refresh in background so the script
-# doesn't prompt repeatedly. Uses sudo -n (non-interactive) so it
-# won't conflict with omarchy's own keepalive in interactive commands.
-sudo -v
+# Cache sudo credentials once and refresh in the background so the script
+# doesn't prompt repeatedly. Skips prompting entirely if a credential is
+# already cached. Uses sudo -n (non-interactive) so it won't conflict with
+# omarchy's own keepalive in interactive commands.
+sudo -n -v 2>/dev/null || sudo -v
 sudo_keepalive() { while true; do sudo -n true; sleep 60; done; }
 sudo_keepalive &
-trap "kill %1 2>/dev/null" EXIT
+SUDO_KEEPALIVE_PID=$!
+
+# -----------------------------
+# Parallel job helpers
+# -----------------------------
+# AUR packages build with makepkg. /etc/makepkg.conf has MAKEFLAGS commented
+# out, which means each build runs single-threaded. Use all cores by default,
+# and give each parallel build an equal share.
+NCORES=$(nproc)
+NCORES_PER_BUILD=$((NCORES / 3))
+[[ $NCORES_PER_BUILD -lt 1 ]] && NCORES_PER_BUILD=1
+export MAKEFLAGS="-j${NCORES}"
+
+# Background jobs log to files so parallel output doesn't interleave.
+LOG_DIR=$(mktemp -d /tmp/install-packages.XXXXXX)
+echo "Parallel job logs: $LOG_DIR"
+
+BACKGROUND_PIDS=()
+BACKGROUND_NAMES=()
+NET_PIDS=()
+NET_NAMES=()
+
+# Run a function as a background job with optional per-job MAKEFLAGS override.
+background_job() {
+  local name="$1"
+  local makeflags="$2"
+  shift 2
+  (
+    if [[ -n "$makeflags" ]]; then
+      export MAKEFLAGS="$makeflags"
+    fi
+    "$@"
+  ) >"$LOG_DIR/$name.log" 2>&1 &
+  BACKGROUND_PIDS+=($!)
+  BACKGROUND_NAMES+=("$name")
+}
+
+# Non-package network/independent jobs, waited on together at the end.
+net_job() {
+  background_job "$@"
+  NET_PIDS+=("${BACKGROUND_PIDS[-1]}")
+  NET_NAMES+=("${BACKGROUND_NAMES[-1]}")
+}
+
+cleanup() {
+  kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+  for pid in "${BACKGROUND_PIDS[@]:-}"; do
+    kill "$pid" 2>/dev/null || true
+  done
+}
+trap cleanup EXIT
+
+install_sshm() {
+  echo "Installing sshm..."
+  curl -sSL https://raw.githubusercontent.com/Gu1llaum-3/sshm/main/install/unix.sh | bash
+}
+
+import_ssh_keys() {
+  echo "Importing authorised SSH keys..."
+  rm -f ~/.ssh/authorized_keys
+  ssh-import-id gh:Jamesking56
+}
+
+setup_composer() {
+  echo "Installing and updating global Composer packages..."
+  echo "  Testing DNS resolution..."
+  if ! getent hosts repo.packagist.org >/dev/null 2>&1; then
+    echo "  DNS resolution failed -- restarting systemd-resolved..."
+    sudo systemctl restart systemd-resolved
+    sleep 2
+    if ! getent hosts repo.packagist.org >/dev/null 2>&1; then
+      echo "  ERROR: DNS still failing after restart. Trying alternate resolv.conf..."
+      echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
+    fi
+  fi
+  echo "  DNS OK"
+  /usr/bin/php /usr/bin/composer global require --no-interaction \
+    laravel/installer \
+    laravel/cloud-cli
+  /usr/bin/php /usr/bin/composer global update --no-interaction
+}
+
+setup_lerd() {
+  echo "Setting up lerd (local PHP dev environment)..."
+  if ! command -v lerd; then
+    curl -fsSL https://raw.githubusercontent.com/geodro/lerd/main/install.sh | bash
+  else
+    lerd update
+  fi
+  echo "Enabling Lerd MCP globally for all AI assistant sessions..."
+  lerd mcp:enable-global
+}
+
+install_skills() {
+  echo "Installing agent skills..."
+  local repo skills
+  for repo in "${!SKILLS_INSTALLS[@]}"; do
+    skills="${SKILLS_INSTALLS[$repo]}"
+    echo "  npx skills add '$repo' ($skills)..."
+    npx skills add "$repo" --skill "$skills" --agent $SKILLS_AGENTS --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to install from $repo"
+  done
+}
+
+cleanup_docker_containers() {
+  local container
+  for container in mariadb11 postgres18 mailhog; do
+    if [ -n "$(docker ps -a -q -f name=$container 2>/dev/null)" ]; then
+      echo "  Removing standalone $container (now managed by Lerd)..."
+      docker stop "$container" 2>/dev/null || true
+      docker rm -v "$container" 2>/dev/null || true
+    fi
+  done
+}
+
+setup_pipx() {
+  echo "Setting up pipx/mycli..."
+  python -m pip uninstall -y mycli 2>/dev/null || true
+  pipx ensurepath
+  pipx reinstall mycli || pipx install mycli
+}
+
+install_php_version() {
+  local ver="$1"
+  local failed=0
+  local pkgs=("php${ver}")
+  local ext
+  for ext in "${SAFE_EXTENSIONS[@]}"; do
+    pkgs+=("php${ver}-${ext}")
+  done
+
+  echo "==> Installing/upgrading PHP $ver + safe extensions..."
+  if ! omarchy pkg aur add "${pkgs[@]}"; then
+    echo "Warning: Some PHP $ver packages failed."
+    failed=1
+  fi
+
+  for ext in "${TRICKY_EXTENSIONS[@]}"; do
+    echo "Installing tricky extension php${ver}-${ext}..."
+    yay -S --needed --noconfirm "php${ver}-${ext}" --mflags --nocheck || {
+      echo "Failed to install php${ver}-${ext}. Please install manually."
+    }
+  done
+
+  if [[ $ver == "84" ]]; then
+    # redis via PECL for PHP 8.4 (if AUR package is missing)
+    if [ -d "/etc/php84" ] && [ ! -f "/etc/php84/conf.d/redis.ini" ]; then
+      echo "Installing redis via PECL for PHP 8.4..."
+      yes '' | sudo pecl84 install --soft redis 2>/dev/null || true
+      echo "extension=redis.so" | sudo tee /etc/php84/conf.d/redis.ini > /dev/null
+    fi
+  fi
+
+  return $failed
+}
+
+build_pcov() {
+  local ver="$1"
+  local dir="$2"
+  echo "==> Building pcov for PHP $ver..."
+  cd "$dir"
+  make clean 2>/dev/null || true
+  "phpize${ver}" >/dev/null 2>&1 || { echo "phpize${ver} failed"; return 1; }
+  ./configure --with-php-config="/usr/bin/php-config${ver}" >/dev/null 2>&1 || { echo "configure failed for PHP $ver"; return 1; }
+  make || { echo "make failed for PHP $ver"; return 1; }
+  sudo make install || { echo "make install failed for PHP $ver"; return 1; }
+  if [ ! -f "/etc/php${ver}/conf.d/pcov.ini" ]; then
+    printf "extension=pcov.so\npcov.enabled=1\n" | sudo tee "/etc/php${ver}/conf.d/pcov.ini" > /dev/null
+  fi
+}
 
 # -----------------------------
 # Update system packages
@@ -77,6 +246,38 @@ DNS=127.0.0.1:5300
 Domains=~test
 EOF
 sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+# -----------------------------
+# Lerd service hostnames (so host PHP can reach podman containers)
+# -----------------------------
+if ! grep -q "lerd-mysql" /etc/hosts; then
+  echo "# Lerd services (podman containers exposed on localhost)
+127.0.0.1 lerd-mysql lerd-redis lerd-mailpit lerd-meilisearch lerd-postgres lerd-rustfs" | sudo tee -a /etc/hosts > /dev/null
+fi
+
+# -----------------------------
+# Enable SSH server over LAN
+# -----------------------------
+sudo ufw allow from 192.168.0.0/24 to any port 22
+sudo systemctl enable sshd
+sudo systemctl start sshd
+
+# -----------------------------
+# Background tasks that only need a base system
+# -----------------------------
+SKILLS_AGENTS="claude-code opencode"
+declare -A SKILLS_INSTALLS=(
+  ["https://github.com/vercel-labs/skills"]="find-skills"
+  ["https://github.com/mattpocock/skills"]="*"
+  ["https://github.com/anthropics/skills"]="frontend-design"
+  ["https://github.com/vercel-labs/agent-browser"]="agent-browser"
+  ["https://github.com/addyosmani/web-quality-skills"]="accessibility"
+  ["https://github.com/typefully/agent-skills"]="typefully"
+)
+
+net_job "skills" "" install_skills
+net_job "lerd" "" setup_lerd
+net_job "sshm" "" install_sshm
 
 # -----------------------------
 # Core system packages
@@ -160,11 +361,6 @@ fi
 echo "Installing core packages..."
 omarchy pkg add "${PACMAN_PKGS[@]}"
 omarchy pkg aur add "${YAY_PKGS[@]}"
-if ! command -v sshm >/dev/null 2>&1
-then
-  # Install sshm
-  curl -sSL https://raw.githubusercontent.com/Gu1llaum-3/sshm/main/install/unix.sh | bash
-fi
 
 # Enable system PHP extensions (main php package bundles .so files but they need ini files)
 for ext in bcmath gd iconv intl pdo_mysql sockets sodium; do
@@ -193,61 +389,16 @@ sudo sed -i 's/^; extension = imagick/extension=imagick.so/' /etc/php/conf.d/ima
 sudo rm -f /etc/brave/policies/managed/color.json
 
 # -----------------------------
-# Authorised SSH keys
+# Background tasks that need installed packages
 # -----------------------------
-rm -f ~/.ssh/authorized_keys
-ssh-import-id gh:Jamesking56
-
-# -----------------------------
-# Lerd service hostnames (so host PHP can reach podman containers)
-# -----------------------------
-if ! grep -q "lerd-mysql" /etc/hosts; then
-  echo "# Lerd services (podman containers exposed on localhost)
-127.0.0.1 lerd-mysql lerd-redis lerd-mailpit lerd-meilisearch lerd-postgres lerd-rustfs" | sudo tee -a /etc/hosts > /dev/null
-fi
-
-# -----------------------------
-# Enable SSH server over LAN
-# -----------------------------
-sudo ufw allow from 192.168.0.0/24 to any port 22
-sudo systemctl enable sshd
-sudo systemctl start sshd
-
-# -----------------------------
-# Remove standalone Docker containers (now managed by Lerd)
-# -----------------------------
-for container in mariadb11 postgres18 mailhog; do
-  if [ -n "$(docker ps -a -q -f name=$container)" ]; then
-    echo "  Removing standalone $container (now managed by Lerd)..."
-    docker stop "$container" 2>/dev/null || true
-    docker rm -v "$container" 2>/dev/null || true
-  fi
-done
-
-# -----------------------------
-# Global Composer packages
-# -----------------------------
-echo "Installing and updating global Composer packages..."
-echo "  Testing DNS resolution..."
-if ! getent hosts repo.packagist.org >/dev/null 2>&1; then
-  echo "  DNS resolution failed -- restarting systemd-resolved..."
-  sudo systemctl restart systemd-resolved
-  sleep 2
-  if ! getent hosts repo.packagist.org >/dev/null 2>&1; then
-    echo "  ERROR: DNS still failing after restart. Trying alternate resolv.conf..."
-    echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
-  fi
-fi
-echo "  DNS OK"
-/usr/bin/php /usr/bin/composer global require --no-interaction \
-  laravel/installer \
-  laravel/cloud-cli
-/usr/bin/php /usr/bin/composer global update --no-interaction
+net_job "composer" "" setup_composer
+net_job "ssh-import" "" import_ssh_keys
+net_job "pipx" "" setup_pipx
+net_job "docker" "" cleanup_docker_containers
 
 # -----------------------------
 # PHP Versions and Extensions
 # -----------------------------
-
 PHP_VERSIONS=(84 83 82)
 
 # Extensions safe to bulk-install
@@ -257,66 +408,69 @@ SAFE_EXTENSIONS=(bcmath cli curl dom exif fileinfo fpm gd iconv intl mbstring my
 TRICKY_EXTENSIONS=(redis xdebug)
 
 echo "Upgrading/installing PHP versions and extensions per version..."
+echo "  Building PHP ${PHP_VERSIONS[*]} in parallel (each build uses -j${NCORES_PER_BUILD})."
 
+PHP_PIDS=()
+PHP_LABELS=()
 for ver in "${PHP_VERSIONS[@]}"; do
-  echo
-  echo "==> Installing/upgrading PHP $ver + safe extensions..."
-  PKGS=("php${ver}")
-  for ext in "${SAFE_EXTENSIONS[@]}"; do
-    PKGS+=("php${ver}-${ext}")
-  done
-
-  # Install PHP + extensions in one transaction to avoid dependency conflicts
-  omarchy pkg aur add "${PKGS[@]}" || {
-    echo "Warning: Some PHP $ver packages failed. You may need to rerun manually."
-  }
-
-  # Install tricky extensions separately, allow failures
-  for ext in "${TRICKY_EXTENSIONS[@]}"; do
-    echo "Installing tricky extension php${ver}-${ext}..."
-    yay -S --needed --noconfirm "php${ver}-${ext}" --mflags --nocheck || {
-      echo "Failed to install php${ver}-${ext}. Please install manually."
-    }
-  done
+  background_job "php-$ver" "-j${NCORES_PER_BUILD}" install_php_version "$ver"
+  PHP_PIDS+=("${BACKGROUND_PIDS[-1]}")
+  PHP_LABELS+=("php-$ver")
 done
 
-# Special case: redis via PECL for PHP 8.4 (if AUR package is missing)
-if [ -d "/etc/php84" ] && [ ! -f "/etc/php84/conf.d/redis.ini" ]; then
-  echo "Installing redis via PECL for PHP 8.4..."
-  yes '' | sudo pecl84 install --soft redis 2>/dev/null || true
-  echo "extension=redis.so" | sudo tee /etc/php84/conf.d/redis.ini > /dev/null
-fi
-
-# Build and install pcov for all PHP versions
-echo "Building pcov for all PHP versions..."
-PCOV_TMP=$(mktemp -d)
-git clone https://github.com/krakjoe/pcov.git "$PCOV_TMP"
-pushd "$PCOV_TMP"
-for ver in "${PHP_VERSIONS[@]}"; do
-  echo "==> Building pcov for PHP $ver..."
-  make clean 2>/dev/null || true
-  "phpize${ver}"
-  ./configure --with-php-config="/usr/bin/php-config${ver}"
-  make
-  sudo make install
-  if [ ! -f "/etc/php${ver}/conf.d/pcov.ini" ]; then
-    printf "extension=pcov.so\npcov.enabled=1\n" | sudo tee "/etc/php${ver}/conf.d/pcov.ini" > /dev/null
+for i in "${!PHP_PIDS[@]}"; do
+  if wait "${PHP_PIDS[$i]}"; then
+    echo "  PHP ${PHP_LABELS[$i]#php-}: OK"
+  else
+    echo "  PHP ${PHP_LABELS[$i]#php-}: FAILED (see $LOG_DIR/${PHP_LABELS[$i]}.log)"
+    tail -n 20 "$LOG_DIR/${PHP_LABELS[$i]}.log" 2>/dev/null | sed 's/^/    /'
   fi
 done
-popd
+
+# Build and install pcov for all PHP versions (parallel across versions)
+echo "Building pcov for all PHP versions..."
+PCOV_TMP=$(mktemp -d)
+git clone https://github.com/krakjoe/pcov.git "$PCOV_TMP/pcov"
+PCOV_PIDS=()
+for ver in "${PHP_VERSIONS[@]}"; do
+  cp -a "$PCOV_TMP/pcov" "$PCOV_TMP/pcov-$ver"
+  background_job "pcov-$ver" "-j${NCORES_PER_BUILD}" build_pcov "$ver" "$PCOV_TMP/pcov-$ver"
+  PCOV_PIDS+=("${BACKGROUND_PIDS[-1]}")
+done
+
+for i in "${!PCOV_PIDS[@]}"; do
+  if wait "${PCOV_PIDS[$i]}"; then
+    echo "  pcov ${PHP_VERSIONS[$i]}: OK"
+  else
+    echo "  pcov ${PHP_VERSIONS[$i]}: FAILED (see $LOG_DIR/pcov-${PHP_VERSIONS[$i]}.log)"
+    tail -n 20 "$LOG_DIR/pcov-${PHP_VERSIONS[$i]}.log" 2>/dev/null | sed 's/^/    /'
+  fi
+done
 rm -rf "$PCOV_TMP"
 
 # -----------------------------
-# Setup lerd (local PHP dev environment)
+# Wait for remaining background tasks
 # -----------------------------
-if ! command -v lerd; then
-  curl -fsSL https://raw.githubusercontent.com/geodro/lerd/main/install.sh | bash
-else
-  lerd update
-fi
+echo "Waiting for remaining background tasks..."
+for i in "${!NET_PIDS[@]}"; do
+  if wait "${NET_PIDS[$i]}"; then
+    echo "  ${NET_NAMES[$i]}: OK"
+  else
+    echo "  ${NET_NAMES[$i]}: FAILED (see $LOG_DIR/${NET_NAMES[$i]}.log)"
+    tail -n 15 "$LOG_DIR/${NET_NAMES[$i]}.log" 2>/dev/null | sed 's/^/    /'
+  fi
+done
 
-# Enable Lerd MCP globally for all AI assistant sessions
-lerd mcp:enable-global
+echo "  Updating all global skills..."
+npx skills update --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to update skills"
+
+# -----------------------------
+# Update omarchy skill
+# -----------------------------
+if [ -d ~/.local/share/omarchy/default/omarchy-skill ]; then
+  rm -rf ~/.claude/skills/omarchy
+  cp -r ~/.local/share/omarchy/default/omarchy-skill ~/.claude/skills/omarchy
+fi
 
 # For systemd-networkd systems: prefer ethernet over WiFi, keep DHCP DNS for regular queries
 sudo tee /etc/systemd/network/20-wlan.network > /dev/null <<'NETEOF'
@@ -374,44 +528,6 @@ done
 if [ -d "$HOME/.local/share/ponytail" ]; then
   echo "  Removing old ponytail checkout (now managed via opencode plugin)..."
   rm -rf "$HOME/.local/share/ponytail"
-fi
-
-# -----------------------------
-# npx skills - Agent skills for AI assistants
-# -----------------------------
-echo "Installing agent skills..."
-
-SKILLS_AGENTS="claude-code opencode"
-
-declare -A SKILLS_INSTALLS=(
-  ["https://github.com/vercel-labs/skills"]="find-skills"
-  ["https://github.com/mattpocock/skills"]="*"
-  ["https://github.com/anthropics/skills"]="frontend-design"
-  ["https://github.com/vercel-labs/agent-browser"]="agent-browser"
-  ["https://github.com/addyosmani/web-quality-skills"]="accessibility"
-  ["https://github.com/typefully/agent-skills"]="typefully"
-)
-
-for repo in "${!SKILLS_INSTALLS[@]}"; do
-  skills="${SKILLS_INSTALLS[$repo]}"
-  echo "  npx skills add '$repo' ($skills)..."
-  npx skills add "$repo" --skill "$skills" --agent $SKILLS_AGENTS --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to install from $repo"
-done
-
-echo "  Updating all global skills..."
-npx skills update --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to update skills"
-
-# Remove system Python mycli if installed (conflicts with pipx version)
-python -m pip uninstall -y mycli 2>/dev/null || true
-pipx ensurepath
-pipx reinstall mycli || pipx install mycli
-
-# -----------------------------
-# Update omarchy skill
-# -----------------------------
-if [ -d ~/.local/share/omarchy/default/omarchy-skill ]; then
-  rm -rf ~/.claude/skills/omarchy
-  cp -r ~/.local/share/omarchy/default/omarchy-skill ~/.claude/skills/omarchy
 fi
 
 {{ if .is_desktop -}}
