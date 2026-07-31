@@ -49,6 +49,8 @@ alias view-run='gh run view -w'
 # Tools
 alias d='docker'
 alias lg='lazygit'
+alias lcloud='cpx laravel/cloud-cli'
+alias lnew='cpx laravel/installer new'
 alias mysql="mycli"
 alias n="nvim"
 alias oc="opencode"
