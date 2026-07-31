@@ -5,6 +5,7 @@ php:
 node:
     default_version: "22"
     managed: false
+    manager: fnm
 nginx:
     http_port: 80
     https_port: 443
