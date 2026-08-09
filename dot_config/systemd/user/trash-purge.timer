@@ -1,0 +1,12 @@
+[Unit]
+Description=Purge trash items older than 30 days
+Requires=trash-purge.service
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1d
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target
