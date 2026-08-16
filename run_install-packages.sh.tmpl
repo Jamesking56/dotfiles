@@ -113,6 +113,17 @@ install_skills() {
   done
 }
 
+install_plugin() {
+  local id="$1"
+  local url="$2"
+  if [ -f "$HOME/.config/omarchy/plugins/$id/manifest.json" ]; then
+    echo "  Plugin '$id' already installed, skipping..."
+    return 0
+  fi
+  echo "  Installing plugin '$id' from $url..."
+  omarchy plugin add "$url" --enable --yes
+}
+
 cleanup_docker_containers() {
   local container
   for container in mariadb11 postgres18 mailhog; do
@@ -316,9 +327,9 @@ declare -A SKILLS_INSTALLS=(
 
 net_job "skills" "" install_skills
 net_job "sshm" "" install_sshm
-net_job "udder" "" omarchy plugin add https://github.com/stappmus/Udder.git --enable --yes
-net_job "github" "" omarchy plugin add https://github.com/robzolkos/omarchy-github.git --enable --yes
-net_job "glance" "" omarchy plugin add https://github.com/lerd-env/lerd-omarchy-glance.git --enable --yes
+net_job "udder" "" install_plugin stappmus.udder https://github.com/stappmus/Udder.git
+net_job "github" "" install_plugin robzolkos.github https://github.com/robzolkos/omarchy-github.git
+net_job "glance" "" install_plugin sh.lerd.glance https://github.com/lerd-env/lerd-omarchy-glance.git
 
 # setup_lerd runs on the main thread (not a background job) because
 # `lerd update` sometimes prompts for input.
@@ -456,6 +467,9 @@ for i in "${!NET_PIDS[@]}"; do
     tail -n 15 "$LOG_DIR/${NET_NAMES[$i]}.log" 2>/dev/null | sed 's/^/    /'
   fi
 done
+
+echo "  Updating all omarchy plugins..."
+omarchy plugin update --yes || echo "  WARNING: Failed to update omarchy plugins"
 
 echo "  Updating all global skills..."
 npx skills update --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to update skills"
