@@ -265,7 +265,7 @@ REMOVE_WEB_APPS=(
 )
 
 for app in "${REMOVE_WEB_APPS[@]}"; do
-  omarchy-webapp-remove "$app"
+  OMARCHY_REMOVE_NOTIFY=false omarchy-webapp-remove "$app"
 done
 
 # -----------------------------
