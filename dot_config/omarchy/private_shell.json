@@ -19,6 +19,9 @@
           "id": "omarchy.weather"
         },
         {
+          "id": "robzolkos.github"
+        },
+        {
           "id": "stappmus.udder"
         },
         {
@@ -42,6 +45,9 @@
       "right": [
         {
           "id": "omarchy.tray"
+        },
+        {
+          "id": "sh.lerd.glance"
         },
         {
           "id": "omarchy.tailscale"
