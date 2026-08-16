@@ -7,11 +7,6 @@ hl.config({
     gaps_in = 0,
     gaps_out = 0,
   },
-  decoration = {
-    -- Dim unfocused windows (0.0 = no dim, 1.0 = fully dimmed)
-    dim_inactive = true,
-    dim_strength = 0.15
-  }
 })
 
 -- https://wiki.hypr.land/Configuring/Basics/Variables/#decoration
