@@ -81,6 +81,9 @@ alias gadd='git add'
 unalias gd
 alias gdiff='git diff'
 
+# Fix alias clash with Omarchy tmux functions (oh-my-zsh defines tds as a directory session)
+unalias tds
+
 # Import Omarchy base functions and envs
 source ~/.local/share/omarchy/default/bash/envs
 source ~/.local/share/omarchy/default/bash/functions
