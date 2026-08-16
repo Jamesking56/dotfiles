@@ -316,6 +316,7 @@ declare -A SKILLS_INSTALLS=(
 
 net_job "skills" "" install_skills
 net_job "sshm" "" install_sshm
+net_job "udder" "" omarchy plugin add https://github.com/stappmus/Udder.git --enable --yes
 
 # setup_lerd runs on the main thread (not a background job) because
 # `lerd update` sometimes prompts for input.

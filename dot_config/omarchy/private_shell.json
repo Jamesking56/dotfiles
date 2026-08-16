@@ -19,6 +19,15 @@
           "id": "omarchy.weather"
         },
         {
+          "id": "stappmus.udder"
+        },
+        {
+          "id": "omarchy.microphone"
+        },
+        {
+          "id": "omarchy.media"
+        },
+        {
           "id": "omarchy.system-update"
         }
       ],
