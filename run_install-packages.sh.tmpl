@@ -548,6 +548,14 @@ aur-sync-vote --remember --explicit || echo "WARNING: aur-sync-vote failed"
 {{ end -}}
 
 # -----------------------------
+# Restart the shell so freshly installed plugins load
+# -----------------------------
+if command -v omarchy-restart-shell &>/dev/null; then
+  echo "  Restarting Omarchy shell to load new plugins..."
+  omarchy-restart-shell
+fi
+
+# -----------------------------
 # Finish
 # -----------------------------
 omarchy-show-done
