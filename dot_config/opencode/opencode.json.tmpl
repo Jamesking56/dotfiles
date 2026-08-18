@@ -26,9 +26,9 @@
         "baseURL": "{{ if .is_desktop }}http://localhost:11434/v1{{ else }}http://james-desktop.tail1d05e.ts.net:11434/v1{{ end }}"
       },
       "models": {
-        "qwen3.8:27b": {
+        "qwen3-coder:30b": {
           "_launch": {{ .is_desktop }},
-          "name": "Qwen3.8 27B"
+          "name": "Qwen3 Coder 30B"
         }
       }
     }
