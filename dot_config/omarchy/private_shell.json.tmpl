@@ -7,10 +7,12 @@
           "id": "omarchy.indicators"
         },
         {
+          "id": "omarchy.clock",
           "format": "dddd h:mm AP",
           "formatAlt": "d MMMM 'W'ww yyyy",
-          "id": "omarchy.clock",
-          "verticalFormat": "h\n—\nmm\nAP"
+          "verticalFormat": "h\n—\nmm\nAP",
+          "birthYear": 1992,
+          "lifeExpectancy": 90
         },
         {
           "id": "omarchy.keyboard-layout"
@@ -19,10 +21,10 @@
           "id": "omarchy.weather"
         },
         {
-          "id": "robzolkos.github"
+          "id": "stappmus.udder"
         },
         {
-          "id": "stappmus.udder"
+          "id": "robzolkos.github"
         },
         {
           "id": "omarchy.microphone"
@@ -46,6 +48,11 @@
         {
           "id": "omarchy.tray"
         },
+{{- if .is_desktop }}
+        {
+          "id": "io.github.prathamesh913.gamedock"
+        },
+{{- end }}
         {
           "id": "sh.lerd.glance"
         },

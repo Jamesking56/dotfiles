@@ -330,6 +330,9 @@ net_job "sshm" "" install_sshm
 net_job "udder" "" install_plugin stappmus.udder https://github.com/stappmus/Udder.git
 net_job "github" "" install_plugin robzolkos.github https://github.com/robzolkos/omarchy-github.git
 net_job "glance" "" install_plugin sh.lerd.glance https://github.com/lerd-env/lerd-omarchy-glance.git
+{{ if .is_desktop -}}
+net_job "gamedock" "" install_plugin io.github.prathamesh913.gamedock https://github.com/Prathamesh913/gamedock.git
+{{- end }}
 
 # setup_lerd runs on the main thread (not a background job) because
 # `lerd update` sometimes prompts for input.
