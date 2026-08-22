@@ -1,0 +1,7 @@
+-- Extra autostart processes.
+-- o.launch_on_start("my-service")
+{{ if .is_desktop }}
+-- Hyprland starts the cursor on whichever monitor enumerates first
+-- (the ViewSonic). Warp it to the center of the primary monitor instead.
+o.exec_on_start([[sleep 3 && hyprctl repl 'local m = hl.get_monitor("DP-1") hl.dispatch(hl.dsp.cursor.move({ x = m.x + m.width / 2, y = m.y + m.height / 2 }))' >/dev/null 2>&1]])
+{{ end }}
