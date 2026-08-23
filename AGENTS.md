@@ -4,7 +4,7 @@ Base guidelines for AI agents. These apply to all projects.
 
 ## Git and commits
 
-1. Always commit atomically. Each commit should contain one logical change, with all related files included.
+1. Make commits atomic. Each commit should contain one logical change, with all related files included.
 2. Always ask before pushing to any remote.
 3. When changing branches, if a local file would be lost by the switch, stash it first.
 4. If a commit fails because no git author is configured, ask which email to use. The email varies by project. Once provided, set it as the local git committer email with `git config user.email`.
@@ -13,7 +13,8 @@ Base guidelines for AI agents. These apply to all projects.
 ## Working style
 
 1. Read the project's AGENTS.md before acting. Its rules override these.
-2. If a requirement is ambiguous, ask instead of assuming.
+2. When a requirement is ambiguous, make the safest reasonable assumption and continue. Ask for clarification only when the ambiguity could cause data loss, a security issue, or a materially different implementation.
+3. When a task explicitly requires autonomous execution, do not stop to ask for confirmation. Continue until the task is complete or a genuine blocker is reached.
 
 ## Writing
 
@@ -24,5 +25,5 @@ Base guidelines for AI agents. These apply to all projects.
 
 ## Secrets and data
 
-1. Never display a secret value. Instead, name the secret and state which file or location holds it.
+1. Never display a secret value. Instead, name the secret and state which secret or configuration location holds it.
 2. Never send secrets or private customer data outside the local file area.
