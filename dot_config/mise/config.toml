@@ -1,0 +1,7 @@
+[tools]
+claude = "latest"
+codex = "latest"
+gh = "latest"
+node = "latest"
+opencode = "latest"
+python = "latest"
