@@ -23,6 +23,21 @@
 -- Disable a default binding without replacing it.
 -- hl.unbind("SUPER + SHIFT + B")
 
+hl.unbind("SUPER + SHIFT + SLASH")
+o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden-desktop" })
+
+hl.unbind("SUPER + SHIFT + G")
+o.bind("SUPER + SHIFT + G", "WhatsApp", { webapp = "https://web.whatsapp.com/", focus = true })
+
+hl.unbind("SUPER + SHIFT + M")
+o.bind("SUPER + SHIFT + M", "Music", { webapp = "https://music.youtube.com/", focus = true })
+
+hl.unbind("SUPER + SHIFT + E")
+o.bind("SUPER + SHIFT + E", "Email", { webapp = "https://mail.google.com/", focus = true })
+
+hl.unbind("SUPER + SHIFT + ALT + E")
+o.bind("SUPER + SHIFT + ALT + E", "New email", { webapp = "https://mail.google.com/mail/u/0/#inbox?compose=new", focus = true })
+
 -- Logitech MX Keys examples:
 -- o.bind("SUPER + SHIFT + S", nil, "omarchy-capture-screenshot")
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
