@@ -38,7 +38,16 @@ o.bind("SUPER + SHIFT + E", "Email", { webapp = "https://mail.google.com/", focu
 hl.unbind("SUPER + SHIFT + ALT + E")
 o.bind("SUPER + SHIFT + ALT + E", "New email", { webapp = "https://mail.google.com/mail/u/0/#inbox?compose=new", focus = true })
 
--- Logitech MX Keys examples:
--- o.bind("SUPER + SHIFT + S", nil, "omarchy-capture-screenshot")
--- o.bind("SUPER + H", nil, "voxtype record toggle")
--- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
+-- Logitech MX Keys:
+-- SUPER+SHIFT+S is an Omarchy Google Maps shortcut by default.
+hl.unbind("SUPER + SHIFT + S")
+o.bind("SUPER + SHIFT + S", nil, "omarchy-capture-screenshot")
+o.bind("SUPER + H", nil, "voxtype record toggle")
+o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
+o.bind("XF86EmojiPicker", nil, "omarchy-shell shell toggle omarchy.emojis")
+o.bind("SUPER + SHIFT + CTRL + ALT + SPACE", nil, "omarchy-shell shell toggle omarchy.emojis")
+o.bind("code:191", nil, "omarchy-audio-input-mute", { locked = true })
+
+-- SUPER+L is an Omarchy workspace-layout shortcut by default.
+hl.unbind("SUPER + L")
+o.bind("SUPER + L", "Lock system", "omarchy-system-lock")
