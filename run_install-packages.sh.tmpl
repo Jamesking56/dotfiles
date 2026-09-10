@@ -356,6 +356,7 @@ PACMAN_PKGS=(
   ghostty
   git
   graphviz
+  logiops
   lsb-release
   mariadb-clients
   mc
@@ -421,6 +422,9 @@ fi
 echo "Installing core packages..."
 omarchy pkg add "${PACMAN_PKGS[@]}"
 omarchy pkg aur add "${YAY_PKGS[@]}"
+
+sudo install -Dm644 "$HOME/.config/logiops/logid.cfg" /etc/logid.cfg
+sudo systemctl enable --now logid
 
 # Enable system PHP extensions (main php package bundles .so files but they need ini files)
 for ext in bcmath gd iconv intl pdo_mysql sockets sodium; do
