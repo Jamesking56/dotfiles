@@ -83,8 +83,13 @@
     "transparent": false
   },
   "idle": {
+{{- if .is_desktop }}
     "lock": 1802,
     "screensaver": 1200
+{{- else }}
+    "lock": 300,
+    "screensaver": 150
+{{- end }}
   },
   "plugins": [],
   "version": 1
