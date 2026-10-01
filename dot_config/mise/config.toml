@@ -3,5 +3,6 @@ claude = "latest"
 codex = "latest"
 gh = "latest"
 node = "latest"
+"github:alibaba/open-code-review" = { version = "1.12.11", bin = "ocr" }
 opencode = "latest"
 python = "latest"

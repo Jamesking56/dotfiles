@@ -105,11 +105,14 @@ setup_lerd() {
 
 install_skills() {
   echo "Installing agent skills..."
-  local repo skills
+  # Remove the retired upstream skill on machines where it is still installed.
+  mise exec node -- npx --yes skills remove resolving-merge-conflicts --global --yes || return 1
+  local repo
+  local -a skills
   for repo in "${!SKILLS_INSTALLS[@]}"; do
-    skills="${SKILLS_INSTALLS[$repo]}"
-    echo "  npx skills add '$repo' ($skills)..."
-    npx skills add "$repo" --skill "$skills" --agent $SKILLS_AGENTS --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to install from $repo"
+    read -r -a skills <<< "${SKILLS_INSTALLS[$repo]}"
+    echo "  npx skills add '$repo' (${skills[*]})..."
+    mise exec node -- npx --yes skills add "$repo" --skill "${skills[@]}" --agent $SKILLS_AGENTS --global --yes || return 1
   done
 }
 
@@ -325,7 +328,14 @@ declare -A SKILLS_INSTALLS=(
   ["https://github.com/addyosmani/web-quality-skills"]="accessibility"
   ["https://github.com/blader/humanizer"]="humanizer"
   ["https://github.com/typefully/agent-skills"]="typefully"
+  ["https://github.com/alibaba/open-code-review"]="open-code-review-delegate"
+  ["https://github.com/cloudflare/skills"]="agents-sdk cloudflare cloudflare-email-service durable-objects web-perf workers-best-practices wrangler"
+  ["https://github.com/nextlevelbuilder/ui-ux-pro-max-skill"]="ui-ux-pro-max"
 )
+
+# Install OCR independently of Node's global npm packages so Node upgrades keep it available.
+mise install node github:alibaba/open-code-review
+mise exec -- ocr --version
 
 net_job "skills" "" install_skills
 net_job "sshm" "" install_sshm
@@ -470,20 +480,27 @@ net_job "docker" "" cleanup_docker_containers
 # Wait for remaining background tasks
 # -----------------------------
 echo "Waiting for remaining background tasks..."
+SKILLS_FAILED=false
 for i in "${!NET_PIDS[@]}"; do
   if wait "${NET_PIDS[$i]}"; then
     echo "  ${NET_NAMES[$i]}: OK"
   else
     echo "  ${NET_NAMES[$i]}: FAILED (see $LOG_DIR/${NET_NAMES[$i]}.log)"
     tail -n 15 "$LOG_DIR/${NET_NAMES[$i]}.log" 2>/dev/null | sed 's/^/    /'
+    if [[ "${NET_NAMES[$i]}" == "skills" ]]; then
+      SKILLS_FAILED=true
+    fi
   fi
 done
+if [[ "$SKILLS_FAILED" == true ]]; then
+  exit 1
+fi
 
 echo "  Updating all omarchy plugins..."
 omarchy plugin update --yes || echo "  WARNING: Failed to update omarchy plugins"
 
 echo "  Updating all global skills..."
-npx skills update --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to update skills"
+mise exec node -- npx --yes skills update --global --yes >/dev/null 2>&1 || echo "  WARNING: Failed to update skills"
 
 # -----------------------------
 # Update omarchy skill
