@@ -1,6 +1,9 @@
 -- Extra autostart processes.
 -- o.launch_on_start("my-service")
 {{ if .is_desktop }}
+-- Make the Dell the primary display for X11 games running through Xwayland.
+o.exec_on_start("xrandr --output DP-1 --primary")
+
 -- Hyprland starts the cursor on whichever monitor enumerates first
 -- (the ViewSonic). Warp it to the center of the primary monitor instead.
 o.exec_on_start([[sleep 3 && hyprctl repl 'local m = hl.get_monitor("DP-1") hl.dispatch(hl.dsp.cursor.move({ x = m.x + m.width / 2, y = m.y + m.height / 2 }))' >/dev/null 2>&1]])
