@@ -27,6 +27,7 @@ hl.unbind("SUPER + SHIFT + SLASH")
 o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden-desktop" })
 
 hl.unbind("SUPER + SHIFT + A")
+o.bind("SUPER + SHIFT + A", "ChatGPT", { launch = "chatgpt" })
 
 hl.unbind("SUPER + SHIFT + G")
 o.bind("SUPER + SHIFT + G", "WhatsApp", { webapp = "https://web.whatsapp.com/", focus = true })
